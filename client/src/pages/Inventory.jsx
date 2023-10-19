@@ -1,8 +1,10 @@
+import Nav from "../components/Nav"
+
 export default function Inventory() {
   return (
-    <hi>
-      {/* <Header /> */}
-      Inventory pages
-    </hi>
+    <>
+      <h1>Inventory</h1>
+      <Nav/>
+    </>
   );
 }

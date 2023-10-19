@@ -1,8 +1,10 @@
+import Nav from "../components/Nav"
+
 export default function RecentTransactions() {
   return (
-    <h1>
-      {/* <Header /> */}
-      Recent Transactions page
-    </h1>
+    <>
+      <h1>Recent</h1>
+      <Nav/>
+    </>
   );
 }

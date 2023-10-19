@@ -1,8 +1,10 @@
+import Nav from "../components/Nav"
+
 export default function Accounts() {
   return (
-    <hi>
-      {/* <Header /> */}
-      Employee accounts page
-    </hi>
+    <>
+      <h1>Accounts</h1>
+      <Nav/>
+    </>
   );
 }
