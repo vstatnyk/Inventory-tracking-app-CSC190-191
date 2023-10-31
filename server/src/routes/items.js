@@ -1,21 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
+const admin = require("../../config/FirebaseConfig");
 
 // Middleware to authorize user based on role
-// const authorizeUser = (roles) => {
-//   return (req, res, next) => {
-//     const userRole = req.user.role;
-//     if (roles.includes(userRole)) {
-//       next();
-//     } else {
-//       res.status(403).json({ error: "Forbidden" });
-//     }
-//   };
-// };
+const authorizeUser = (accessLevelRequired) => {
+  return async (req, res, next) => {
+    const user = await admin.auth().getUser(req.user.uid);
+    if (user.customClaims.accessLevel > accessLevelRequired) {
+      next();
+    } else {
+      res.status(403).json({ error: "Forbidden" });
+    }
+  };
+};
 
 // Create a new item
-router.post("/", async (req, res) => {
+router.post("/", authorizeUser(2), async (req, res) => {
   const newItem = new Item(req.body);
   const savedItem = await newItem.save();
   res.json(savedItem);
@@ -28,7 +29,7 @@ router.get("/", async (req, res) => {
 });
 
 // Update an item
-router.put("/:id", async (req, res) => {
+router.put("/:id", authorizeUser(2), async (req, res) => {
   const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
   });
@@ -36,7 +37,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete an item
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authorizeUser(2), async (req, res) => {
   const deletedItem = await Item.findByIdAndRemove(req.params.id);
   res.json(deletedItem);
 });
