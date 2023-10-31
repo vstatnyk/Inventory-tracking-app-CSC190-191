@@ -4,10 +4,7 @@ export default function Inventory({ items }) {
     const [editState, setEditState] = useState({});
     const [inputValues, setInputValues] = useState({});
     const [newItem, setNewItem] = useState("");
-    const [inventoryItems, setInventoryItems] = useState([
-        { id: 1, name: "Item 1", stock: 10, checkedOut: 2 },
-        { id: 2, name: "Item 2", stock: 5, checkedOut: 1 },
-    ]);
+    const [inventoryItems, setInventoryItems] = useState(items);
 
     const nextItemId = Math.max(...inventoryItems.map((item) => item.id), 0) + 1;
 
