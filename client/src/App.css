@@ -77,3 +77,11 @@
 .inventoryRow {
   margin: .5em;
 }
+
+.inventoryButtons button {
+  margin-right: 10px; 
+
+.inventoryButtons button:first-child {
+  margin-right: 10px;
+  margin-left: auto; 
+}
