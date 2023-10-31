@@ -70,16 +70,13 @@
   border: 1px solid transparent;
 }
 
-.inventoryInput::placeholder {
-  color: rgba(255, 255, 255, 0.87);
-}
-
 .inventoryRow {
   margin: .5em;
 }
 
 .inventoryButtons button {
-  margin-right: 10px; 
+  margin-right: 10px;
+}
 
 .inventoryButtons button:first-child {
   margin-right: 10px;

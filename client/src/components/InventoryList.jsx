@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 
-export default function inventoryList({ items }) {
+export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
   const [inputValues, setInputValues] = useState({});
-  const [newItem, setNewItem] = useState("");
   const [inventoryItems, setInventoryItems] = useState(items);
 
   const nextItemId = Math.max(...inventoryItems.map((item) => item.id), 0) + 1;
