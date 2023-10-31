@@ -1,20 +1,32 @@
-import Nav from "../components/Nav"
-import Inventorylist from "../components/InventoryList"
+import Nav from "../components/Nav";
+import Inventorylist from "../components/InventoryList";
+import { useState, useEffect } from 'react';
 
 export default function Inventory() {
-  // array for testing
-  let items = [
-    {id: 1, name: "item 1", stock: 3, checkedOut: 0},
-    {id: 2, name: "item 2", stock: 4, checkedOut: 1},
-    {id: 3, name: "item 3", stock: 2, checkedOut: 5},
-    {id: 4, name: "", stock: 1, checkedOut: 1},
-  ];
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/items", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setItems(data);
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }, []);
 
   return (
     <>
       <h1>Inventory</h1>
-      <Nav/>
-      <Inventorylist items={items}/>
+      <Nav />
+      <Inventorylist items={items} />
     </>
   );
 }

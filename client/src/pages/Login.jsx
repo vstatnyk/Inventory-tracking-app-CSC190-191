@@ -1,5 +1,4 @@
-import Nav from "../components/Nav";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -43,12 +42,12 @@ const StyledTextField = styled(TextField)({
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
+    setEmail(e.target.value);
   };
 
   const handlePasswordChange = (e) => {
@@ -59,25 +58,44 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
-  const handleFormSubmit = (event) => {
+  const handleFormSubmit = async (event) => {
     event.preventDefault();
-    navigate("/inventory");
+    try {
+      const response = await fetch("http://localhost:3000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      navigate("/inventory");
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
+
+  useEffect(() => {
+    const isAuthenticated = !!localStorage.getItem("token");
+    if (isAuthenticated) {
+      navigate("/inventory");
+    }
+  }, [navigate]);
 
   return (
     <>
       <h1>Login</h1>
       <form onSubmit={handleFormSubmit}>
-        <Box
-          sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <StyledTextField
-            label="Username"
+            label="Email"
             variant="outlined"
             fullWidth
             color="primary"
             id="username"
-            value={username}
+            value={email}
             onChange={handleUsernameChange}
             InputProps={{
               style: {

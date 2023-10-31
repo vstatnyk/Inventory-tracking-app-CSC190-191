@@ -1,7 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } = require("firebase/auth");
+const {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} = require("firebase/auth");
 const authenticateUser = require("../utils/authenticateUser");
+const admin = require("../../config/FirebaseConfig");
 
 router.post("/register", authenticateUser, async (req, res) => {
   const auth = getAuth();
@@ -28,20 +33,21 @@ router.post("/register", authenticateUser, async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-    const auth = getAuth();
-    const { email, password } = req.body;
-    
-    try {
-        const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-        );
-        const token = await userCredential.user.getIdToken();
-        res.json({ token });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+  const auth = getAuth();
+  const { email, password } = req.body;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    await admin.auth().setCustomUserClaims(userCredential.user.uid, { accessLevel: 4 });
+    const token = await userCredential.user.getIdToken();
+    res.json({ token });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
 module.exports = router;
