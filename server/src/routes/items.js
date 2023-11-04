@@ -22,9 +22,24 @@ router.post("/", authorizeUser(2), async (req, res) => {
   res.json(savedItem);
 });
 
-// Get all items
+// Get items with optional filtering by name, description, or quantity
+// if no filter, simply displays all items
 router.get("/", async (req, res) => {
-  const items = await Item.find();
+  const filter = {};
+
+  if (req.query.name) {
+     filter.name = new RegExp(req.query.name, 'i');
+  }
+
+  if (req.query.description) {
+     filter.description = new RegExp(req.query.description, 'i');
+  }
+
+  if (req.query.quantity) {
+    filter.quantity = parseInt(req.query.quantity, 10);
+  }
+
+  const items = await Item.find(filter);
   res.json(items);
 });
 
