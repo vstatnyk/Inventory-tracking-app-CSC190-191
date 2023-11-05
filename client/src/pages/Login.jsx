@@ -10,6 +10,9 @@ import {
 import { styled } from "@mui/system";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import logo from '../images/mosqeet.png';
+
+
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -86,6 +89,9 @@ export default function Login() {
 
   return (
     <>
+      <div>
+        <img src={logo} />
+      </div>
       <h1>Login</h1>
       <form onSubmit={handleFormSubmit}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
