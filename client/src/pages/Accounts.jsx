@@ -1,10 +1,10 @@
-import Nav from "../components/Nav"
+import Nav from "../components/Nav";
 
 export default function Accounts() {
   return (
     <>
       <h1>Accounts</h1>
-      <Nav/>
+      <Nav active = "accounts"/>
     </>
   );
 }

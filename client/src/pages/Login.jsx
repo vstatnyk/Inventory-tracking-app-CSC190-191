@@ -1,42 +1,42 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
-  TextField,
-  InputAdornment,
   IconButton,
+  InputAdornment,
+  TextField,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
-    color: "white",
+    color: "black",
   },
   "& .MuiInput-underline:after": {
-    borderBottomColor: "white",
+    borderBottomColor: "black",
   },
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
     "&:hover fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
   },
   "& .MuiOutlinedInput-input": {
-    color: "white",
+    color: "black",
   },
   "& .MuiInputLabel-root": {
-    color: "white",
+    color: "black",
   },
   "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "white",
+    borderColor: "black",
   },
 });
 
@@ -117,7 +117,7 @@ export default function Login() {
                   <IconButton
                     onClick={handleClickShowPassword}
                     sx={{
-                      color: "white",
+                      color: "black",
                       "&:focus": {
                         outline: "none",
                       },

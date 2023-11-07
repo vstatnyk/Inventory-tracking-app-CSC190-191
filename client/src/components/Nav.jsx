@@ -1,7 +1,22 @@
-import { Link } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function Nav() {
+
+import PropTypes from 'prop-types';
+
+export default function Nav({ active }) {
+Nav.propTypes = {
+  active: PropTypes.string.isRequired,
+};
+
+const [activePage, setActive] = useState(false);
+
+useEffect(() => {
+  setActive(active);
+}, [active]);
+
+
   const auth = getAuth();
 
   const handleLogoutClick = () => {
@@ -14,13 +29,33 @@ export default function Nav() {
     <nav className="nav">
       <ul>
         <li>
-          <Link to="/recent">Recent</Link>
+          {activePage === "recent" ? (
+            <Link to="/recent" className="active">
+              Recent
+            </Link>
+          ) : (
+            <Link to="/recent">Recent</Link>
+          )}
         </li>
         <li>
-          <Link to="/inventory">Inventory</Link>
+          {activePage === "inventory" ? (
+            <Link to="/inventory" className="active">
+              Inventory
+            </Link>
+          ) : (
+            <Link to="/inventory">Inventory</Link>
+          )
+          }
         </li>
         <li>
-          <Link to="/accounts">Accounts</Link>
+          {activePage === "accounts" ? (
+            <Link to="/accounts" className="active">
+              Accounts
+            </Link>
+          ) : (
+            <Link to="/accounts">Accounts</Link>
+          )
+          }
         </li>
         <li>
           <button onClick={handleLogoutClick}>Logout</button>

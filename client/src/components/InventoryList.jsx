@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
@@ -87,7 +87,7 @@ export default function InventoryList({ items }) {
           <br />
           <div className="inventoryButtons">
             {editState[item.id] ? (
-              <>
+              <div className= "buttonContainer">
                 <button
                   id={`saveButton${item.id}`}
                   onClick={() => handleSaveClick(item.id)}
@@ -100,21 +100,24 @@ export default function InventoryList({ items }) {
                 >
                   Cancel
                 </button>
-              </>
+              </div>
             ) : (
-              <button
-                id={`button${item.id}`}
-                onClick={() => handleEditClick(item.id)}
-              >
-                Edit
-              </button>
-            )}
-            <button
+              <div className= "buttonContainer"><button
               id={`button${item.id}`}
-              onClick={() => handleDeleteItem(item.id)}
+              onClick={() => handleEditClick(item.id)}
             >
-              Delete Item
+              <img src= "../../edit-button.svg" alt="Edit Item" className="image"/>
             </button>
+            <button
+            id={`button${item.id}`}
+            onClick={() => handleDeleteItem(item.id)}
+          >
+             <img src= "../../trash.svg" alt="Delete Item" className="image"/>
+          </button>
+          </div>
+              
+            )}
+            
           </div>
         </div>
       ))}

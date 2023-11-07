@@ -1,5 +1,5 @@
-import Nav from "../components/Nav"
-import InventoryList from "../components/InventoryList"
+import InventoryList from "../components/InventoryList";
+import Nav from "../components/Nav";
 
 export default function Inventory() {
   // array for testing
@@ -13,7 +13,7 @@ export default function Inventory() {
   return (
     <>
       <h1>Inventory</h1>
-      <Nav/>
+      <Nav active = "inventory"/>
       <InventoryList items={items}/>
     </>
   );
