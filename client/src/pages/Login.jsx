@@ -1,15 +1,16 @@
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../utils/api";
 import {
   Box,
   Button,
-  IconButton,
-  InputAdornment,
   TextField,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -45,6 +46,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -61,19 +63,12 @@ export default function Login() {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
+      const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
       navigate("/inventory");
     } catch (error) {
       console.error("Error:", error);
+      setErrorMessage(error.message);
     }
   };
 
@@ -135,6 +130,7 @@ export default function Login() {
           <Button variant="contained" color="primary" type="submit">
             Login
           </Button>
+          {errorMessage && <Box sx={{ color: "red" }}>{errorMessage}</Box>}
         </Box>
       </form>
     </>
