@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createItem, deleteItem } from "../utils/api";
 
 export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
@@ -43,7 +44,7 @@ export default function InventoryList({ items }) {
     handleEditClick(itemId); // Close the edit mode
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     const newItemObject = {
       id: nextItemId,
       name: "New Item",
@@ -51,11 +52,13 @@ export default function InventoryList({ items }) {
       checkedOut: 0,
     };
     setInventoryItems([...inventoryItems, newItemObject]);
+    await createItem("Testing check", "This is a new variable", 0, localStorage.getItem("token"));
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
     const updatedItems = inventoryItems.filter((item) => item.id !== itemId);
     setInventoryItems(updatedItems);
+    await deleteItem('654cba23c3cd420a26de383a',localStorage.getItem("token") );
   };
 
   return (
