@@ -1,37 +1,60 @@
 import axios from "axios";
 const BASE_URL = "http://localhost:3000/api";
 
-export const getItems = async (name, description, quantity) => {
+export const getItems = async (name, description, quantity, token) => {
   const response = await axios.get(`${BASE_URL}/items`, {
     params: {
       name: name,
       description: description,
       quantity: quantity,
     },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };
 
-export const createItem = async (name, description, quantity) => {
-  const response = await axios.post(`${BASE_URL}/items`, {
-    name: name,
-    description: description,
-    quantity: quantity,
-  });
+export const createItem = async (name, description, quantity, token) => {
+  const response = await axios.post(
+    `${BASE_URL}/items`,
+    {
+      name: name,
+      description: description,
+      quantity: quantity,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 };
 
-export const updateItem = async (id, name, description, quantity) => {
-  const response = await axios.put(`${BASE_URL}/items/${id}`, {
-    name: name,
-    description: description,
-    quantity: quantity,
-  });
+export const updateItem = async (id, name, description, quantity, token) => {
+  const response = await axios.put(
+    `${BASE_URL}/items/${id}`,
+    {
+      name: name,
+      description: description,
+      quantity: quantity,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 };
 
-export const deleteItem = async (id) => {
-  const response = await axios.delete(`${BASE_URL}/items/${id}`);
+export const deleteItem = async (id, token) => {
+  const response = await axios.delete(`${BASE_URL}/items/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 
