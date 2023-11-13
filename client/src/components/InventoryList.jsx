@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createItem, deleteItem } from "../utils/api";
 
 export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
@@ -43,7 +44,7 @@ export default function InventoryList({ items }) {
     handleEditClick(itemId); // Close the edit mode
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     const newItemObject = {
       id: nextItemId,
       name: "New Item",
@@ -51,11 +52,13 @@ export default function InventoryList({ items }) {
       checkedOut: 0,
     };
     setInventoryItems([...inventoryItems, newItemObject]);
+    await createItem("Testing check", "This is a new variable", 0, localStorage.getItem("token"));
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
     const updatedItems = inventoryItems.filter((item) => item.id !== itemId);
     setInventoryItems(updatedItems);
+    await deleteItem('654cba23c3cd420a26de383a',localStorage.getItem("token") );
   };
 
   return (
@@ -87,7 +90,7 @@ export default function InventoryList({ items }) {
           <br />
           <div className="inventoryButtons">
             {editState[item.id] ? (
-              <>
+              <div className= "buttonContainer">
                 <button
                   id={`saveButton${item.id}`}
                   onClick={() => handleSaveClick(item.id)}
@@ -100,21 +103,24 @@ export default function InventoryList({ items }) {
                 >
                   Cancel
                 </button>
-              </>
+              </div>
             ) : (
-              <button
-                id={`button${item.id}`}
-                onClick={() => handleEditClick(item.id)}
-              >
-                Edit
-              </button>
-            )}
-            <button
+              <div className= "buttonContainer"><button
               id={`button${item.id}`}
-              onClick={() => handleDeleteItem(item.id)}
+              onClick={() => handleEditClick(item.id)}
             >
-              Delete Item
+              <img src= "../../edit-button.svg" alt="Edit Item" className="image"/>
             </button>
+            <button
+            id={`button${item.id}`}
+            onClick={() => handleDeleteItem(item.id)}
+          >
+             <img src= "../../trash.svg" alt="Delete Item" className="image"/>
+          </button>
+          </div>
+              
+            )}
+            
           </div>
         </div>
       ))}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../utils/api";
 import {
   Box,
   Button,
@@ -16,30 +17,30 @@ import logo from '../images/mosqeet.png';
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
-    color: "white",
+    color: "black",
   },
   "& .MuiInput-underline:after": {
-    borderBottomColor: "white",
+    borderBottomColor: "black",
   },
   "& .MuiOutlinedInput-root": {
     "& fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
     "&:hover fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
     "&.Mui-focused fieldset": {
-      borderColor: "white",
+      borderColor: "black",
     },
   },
   "& .MuiOutlinedInput-input": {
-    color: "white",
+    color: "black",
   },
   "& .MuiInputLabel-root": {
-    color: "white",
+    color: "black",
   },
   "& .MuiOutlinedInput-notchedOutline": {
-    borderColor: "white",
+    borderColor: "black",
   },
 });
 
@@ -48,6 +49,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -64,19 +66,12 @@ export default function Login() {
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
+      const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
       navigate("/inventory");
     } catch (error) {
       console.error("Error:", error);
+      setErrorMessage(error.message);
     }
   };
 
@@ -123,7 +118,7 @@ export default function Login() {
                   <IconButton
                     onClick={handleClickShowPassword}
                     sx={{
-                      color: "white",
+                      color: "black",
                       "&:focus": {
                         outline: "none",
                       },
@@ -141,6 +136,7 @@ export default function Login() {
           <Button variant="contained" color="primary" type="submit">
             Login
           </Button>
+          {errorMessage && <Box sx={{ color: "red" }}>{errorMessage}</Box>}
         </Box>
       </form>
     </>
