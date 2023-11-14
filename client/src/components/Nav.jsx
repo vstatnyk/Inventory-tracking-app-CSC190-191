@@ -1,11 +1,12 @@
 import { getAuth, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 import PropTypes from 'prop-types';
 
 export default function Nav({ active }) {
+  const navigate = useNavigate();
 Nav.propTypes = {
   active: PropTypes.string.isRequired,
 };
@@ -22,6 +23,7 @@ useEffect(() => {
   const handleLogoutClick = () => {
     signOut(auth).then(() => {
       localStorage.removeItem("token");
+      navigate("/");
     });
   };
 
