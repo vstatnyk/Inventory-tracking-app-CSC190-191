@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../utils/api";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import {
   Box,
   Button,
@@ -11,9 +12,8 @@ import {
 import { styled } from "@mui/system";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import logo from '../images/mosqeet.png';
-
-
+import logo from "../images/mosqeet.png";
+import Modal from "@mui/material/Modal";
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -45,11 +45,37 @@ const StyledTextField = styled(TextField)({
 });
 
 export default function Login() {
+  const auth = getAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleResetEmailChange = (e) => {
+    setResetEmail(e.target.value);
+  };
+
+  const handleResetPassword = async () => {
+    sendPasswordResetEmail(auth, resetEmail)
+      .then(() => {
+        alert("Password reset email sent!");
+        handleCloseModal();
+      })
+      .catch((error) => {
+        alert(`Error: ${error.message}`);
+      });
+  };
 
   const handleUsernameChange = (e) => {
     setEmail(e.target.value);
@@ -136,6 +162,31 @@ export default function Login() {
           <Button variant="contained" color="primary" type="submit">
             Login
           </Button>
+          <Button onClick={handleOpenModal}>Forgot Password?</Button>
+          <Modal open={openModal} onClose={handleCloseModal}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                border: "2px solid #000",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <h2>Reset Password</h2>
+              <TextField
+                label="Email"
+                variant="outlined"
+                value={resetEmail}
+                onChange={handleResetEmailChange}
+              />
+              <Button onClick={handleResetPassword}>Send Reset Email</Button>
+            </Box>
+          </Modal>
           {errorMessage && <Box sx={{ color: "red" }}>{errorMessage}</Box>}
         </Box>
       </form>
