@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const itemsRoutes = require('./routes/items');
 const usersRoutes = require('./routes/users');
+const transactionsRoutes = require('./routes/transactions');
 const cors = require("cors");
 const authenticateUser = require("./utils/authenticateUser");
 
@@ -21,6 +22,9 @@ app.use("/api/items", authenticateUser, itemsRoutes);
 
 // Use users routes for paths starting with /users
 app.use("/api/users", usersRoutes);
+
+// Use transactions routes for paths starting with /transactions
+app.use("/api/transactions", authenticateUser, transactionsRoutes);
 
 // Start the server
 app.listen(3000, () => console.log("Server is running on port 3000"));
