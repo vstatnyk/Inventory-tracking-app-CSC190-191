@@ -13,7 +13,12 @@ import { styled } from "@mui/system";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import logo from "../images/mosqeet.png";
-import Modal from "@mui/material/Modal";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
@@ -51,15 +56,21 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [openModal, setOpenModal] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
+  const [resetStatus, setResetStatus] = useState({ status: null, error: null });
 
-  const handleOpenModal = () => {
-    setOpenModal(true);
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleExitedDialog = () => {
+    setResetStatus({ status: null, error: null });
+    setResetEmail("");
   };
 
   const handleResetEmailChange = (e) => {
@@ -67,14 +78,13 @@ export default function Login() {
   };
 
   const handleResetPassword = async () => {
-    sendPasswordResetEmail(auth, resetEmail)
-      .then(() => {
-        alert("Password reset email sent!");
-        handleCloseModal();
-      })
-      .catch((error) => {
-        alert(`Error: ${error.message}`);
-      });
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      setResetStatus({ status: "success", error: null });
+    } catch (error) {
+      console.error("Error:", error);
+      setResetStatus({ status: "error", error: error.message });
+    }
   };
 
   const handleUsernameChange = (e) => {
@@ -159,34 +169,66 @@ export default function Login() {
               ),
             }}
           />
+          <Typography
+            variant="body2"
+            color="primary"
+            onClick={handleOpenDialog}
+            sx={{
+              cursor: "pointer",
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+          >
+            Forgot Password?
+          </Typography>
           <Button variant="contained" color="primary" type="submit">
             Login
           </Button>
-          <Button onClick={handleOpenModal}>Forgot Password?</Button>
-          <Modal open={openModal} onClose={handleCloseModal}>
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 400,
-                bgcolor: "background.paper",
-                border: "2px solid #000",
-                boxShadow: 24,
-                p: 4,
-              }}
-            >
-              <h2>Reset Password</h2>
-              <TextField
-                label="Email"
-                variant="outlined"
-                value={resetEmail}
-                onChange={handleResetEmailChange}
-              />
-              <Button onClick={handleResetPassword}>Send Reset Email</Button>
-            </Box>
-          </Modal>
+          <Dialog
+            open={openDialog}
+            onClose={handleCloseDialog}
+            onTransitionExited={handleExitedDialog}
+          >
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogContent>
+              {resetStatus.status === "success" ? (
+                <Typography color="green">
+                  Password reset email sent!
+                </Typography>
+              ) : resetStatus.status === "error" ? (
+                <Typography color="red">{resetStatus.error}</Typography>
+              ) : (
+                <>
+                  <DialogContentText>
+                    To reset your password, please enter the email address
+                    associated with your account. We will send you an email with
+                    instructions on how to reset your password.
+                  </DialogContentText>
+                  <TextField
+                    onChange={handleResetEmailChange}
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="Email Address"
+                    type="email"
+                    fullWidth
+                    variant="standard"
+                  />
+                </>
+              )}
+              <DialogActions>
+                {resetStatus.status === null ? (
+                  <>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleResetPassword}>Submit</Button>
+                  </>
+                ) : (
+                  <Button onClick={handleCloseDialog}>Close</Button>
+                )}
+              </DialogActions>
+            </DialogContent>
+          </Dialog>
           {errorMessage && <Box sx={{ color: "red" }}>{errorMessage}</Box>}
         </Box>
       </form>
