@@ -82,3 +82,12 @@ export const loginUser = async (email, password) => {
     }
   }
 };
+
+export const getTransactions = async (token) => {
+  const response = await axios.get(`${BASE_URL}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};

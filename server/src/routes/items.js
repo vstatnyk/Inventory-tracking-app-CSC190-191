@@ -2,19 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Item = require("../models/Item");
 const Transaction = require("../models/Transaction");
-const admin = require("../../config/FirebaseConfig");
-
-// Middleware to authorize user based on role
-const authorizeUser = (accessLevelRequired) => {
-  return async (req, res, next) => {
-    const user = await admin.auth().getUser(req.user.uid);
-    if (user.customClaims.accessLevel > accessLevelRequired) {
-      next();
-    } else {
-      res.status(403).json({ error: "Forbidden" });
-    }
-  };
-};
+const authorizeUser = require("../utils/authorizeUser");
 
 // Create a new item
 router.post("/", authorizeUser(2), async (req, res) => {
