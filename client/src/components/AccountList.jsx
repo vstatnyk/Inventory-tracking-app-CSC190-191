@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import edit from "../images/edit-button.svg";
+import del from "../images/trash.svg";
 
 export default function AccountList({ accounts_p }) {
     const [editState, setEditState] = useState({});
@@ -150,13 +152,13 @@ export default function AccountList({ accounts_p }) {
                   id={`button${account.id}`}
                   onClick={() => handleEditClick(account.id)}
                 >
-                  <img src= "../../edit-button.svg" alt="Edit Account" className="image"/>
+                  <img src={edit} alt="Edit Item" className="image"/>
                 </button>
                 <button
                 id={`button${account.id}`}
                 onClick={() => handleDeleteAccount(account.id)}
               >
-                 <img src= "../../trash.svg" alt="Delete Account" className="image"/>
+                 <img src={del} alt="Delete Item" className="image"/>
               </button>
               </div>
                   

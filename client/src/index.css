@@ -164,36 +164,27 @@ h1 {
   float: center;
   color: #ffffff;
   border: 1px solid transparent;
-  border: solid 1px #004762;
-  
 }
 
 .accountRow {
-  /* border: solid 1px #ffffff; */
   margin: 0 auto;
   padding: 0rem;
-  /* margin: .5em; */
-  border: solid 1px #004762;
 }
 
 .accountButtons button {
   margin: 0 auto;
   padding: 0rem;
-  border: solid 1px #004762;
 }
 
 .accountButtons button:first-child {
   margin: 0 auto;
   padding: 0rem;
   margin-right: 10px;
-  border: solid 1px #004762;
-
 }
 
 .accountButtonContainer {
   margin: 0 auto;
   padding: 0rem;
-  border: solid 1px #004762;
 }
 
 .accountInput option {
