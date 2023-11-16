@@ -5,6 +5,7 @@ export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
   const [inputValues, setInputValues] = useState({});
   const [inventoryItems, setInventoryItems] = useState(items);
+  const [prevInputValues, setPrevInputValues] = useState({});
 
   const nextItemId = Math.max(...inventoryItems.map((item) => item.id), 0) + 1;
 
@@ -18,11 +19,30 @@ export default function InventoryList({ items }) {
     setInputValues(initialInputValues);
   }, [inventoryItems]);
 
-  const handleEditClick = (itemId) => {
+  const changeEditState = (id) => {
     setEditState((prevState) => ({
-      ...prevState,
-      [itemId]: !prevState[itemId],
+        ...prevState,
+        [id]: !prevState[id],
     }));
+}
+
+const handleCancelClick = (id) => {
+    setInputValues((inputValues) => {
+        Object.keys(items[0]).forEach((property) => {
+            inputValues[`${property}${id}`] = prevInputValues[`${property}${id}`];
+        });
+        return { ...inputValues };
+    });
+    changeEditState(id);
+};
+
+  const handleEditClick = (itemId) => {
+    changeEditState(itemId);
+    const newPrevInputValues = { ...prevInputValues };
+    Object.keys(items[0]).forEach((property) => {
+        newPrevInputValues[`${property}${itemId}`] = inputValues[`${property}${itemId}`];
+    });
+    setPrevInputValues(newPrevInputValues);
   };
 
   const handleInputChange = (property, value, item) => {
@@ -99,7 +119,7 @@ export default function InventoryList({ items }) {
                 </button>
                 <button
                   id={`button${item.id}`}
-                  onClick={() => handleEditClick(item.id)}
+                  onClick={() => handleCancelClick(item.id)}
                 >
                   Cancel
                 </button>
