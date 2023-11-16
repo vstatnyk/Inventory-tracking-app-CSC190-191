@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
 
@@ -8,7 +8,8 @@ export default function AccountList({ accounts_p }) {
   const [accounts, setAccounts] = useState(accounts_p);
   const [prevInputValues, setPrevInputValues] = useState({});
 
-  const nextItemId = Math.max(...accounts.map((account) => account.id), 0) + 1;
+  const nextItemId =
+    Math.max(...accounts.map((account) => account.id), 0) + 1;
 
   useEffect(() => {
     const initialInputValues = {};
@@ -47,16 +48,18 @@ export default function AccountList({ accounts_p }) {
   };
 
   const handleInputChange = (property, value, account) => {
-    // Validate input based on property
-    if (
-      (property === "id" && /^\d*$/.test(value)) || // Allow only numbers for id
-      (property === "name" && /^[a-zA-Z\s]*$/.test(value)) // Allow only letters and spaces for name
-    ) {
-      setInputValues((prevInputValues) => ({
-        ...prevInputValues,
-        [`${property}${account.id}`]: value,
-      }));
+    if (property === "id") {
+      // Allow only numeric input for id
+      value = value.replace(/[^0-9]/g, "");
+    } else if (property === "name") {
+      // Allow only alphabets for name
+      value = value.replace(/[^a-zA-Z ]/g, "");
     }
+
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`${property}${account.id}`]: value,
+    }));
   };
 
   const handleSaveClick = (id) => {
@@ -116,6 +119,22 @@ export default function AccountList({ accounts_p }) {
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
                 </select>
+              ) : property === "id" ? (
+                <input
+                  type="text"
+                  className="accountInput"
+                  style={{
+                    border: editState[account.id]
+                      ? "1px solid white"
+                      : "1px solid transparent",
+                  }}
+                  disabled={!editState[account.id]}
+                  id={`${property}${account.id}`}
+                  value={inputValues[`${property}${account.id}`]}
+                  onChange={(e) =>
+                    handleInputChange(property, e.target.value, account)
+                  }
+                />
               ) : (
                 <input
                   type="text"
