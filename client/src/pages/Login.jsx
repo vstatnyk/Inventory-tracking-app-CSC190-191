@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../utils/api";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
-  TextField,
-  InputAdornment,
   IconButton,
+  InputAdornment,
+  TextField,
 } from "@mui/material";
-import { styled } from "@mui/system";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import logo from "../images/mosqeet.png";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
+import { styled } from "@mui/system";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import logo from "../images/mosqeet.png";
+import { loginUser } from "../utils/api";
 
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
