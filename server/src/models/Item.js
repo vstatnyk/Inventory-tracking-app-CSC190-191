@@ -6,7 +6,7 @@ const itemSchema = new mongoose.Schema({
   name: String,
   description: String,
   quantity: Number,
-  department: String,
+  department: [],
   img_id: Number,
 });
 
