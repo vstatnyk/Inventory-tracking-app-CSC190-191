@@ -41,7 +41,7 @@ export default function Inventory() {
           <InventoryList items={items} />
         </>
       ) : (
-        <></>
+        <></> // CheckLoginStatus() false
       )}
     </>
   );

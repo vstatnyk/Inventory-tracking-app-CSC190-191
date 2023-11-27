@@ -19,7 +19,7 @@ export default function Accounts() {
           <InventoryList accounts_p={accounts}/>
         </>
       ) : (
-        <></>
+        <></> // CheckLoginStatus() false
       )}
     </>
   );
