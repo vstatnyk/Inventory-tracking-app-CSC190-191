@@ -1,5 +1,6 @@
 import Nav from "../components/Nav";
 import InventoryList from "../components/AccountList"
+import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 
 export default function Accounts() {
     // array for testing
@@ -11,9 +12,15 @@ export default function Accounts() {
     ];
   return (
     <>
-      <h1>Accounts</h1>
-      <Nav active = "accounts"/>
-      <InventoryList accounts_p={accounts}/>
+      {CheckLoginStatus() === true ? (
+        <>
+          <h1>Accounts</h1>
+          <Nav active="accounts" />
+          <InventoryList accounts_p={accounts}/>
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 }

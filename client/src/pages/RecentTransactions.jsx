@@ -3,6 +3,8 @@ import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import { getTransactions } from "../utils/api";
+import { CheckLoginStatus } from "../functions/CheckLoginStatus";
+
 
 //styles for MUI components
 const AccordionStyle = {
@@ -38,26 +40,32 @@ export default function RecentTransactions() {
   }, []);
 
   return (
-    <div style={{ color: "black" }}>
-      <h1>Recent Transactions</h1>
-      <Nav active="recent" />
-      {transactions.map((transaction) => (
-        <Accordion key={transaction._id} sx={AccordionStyle}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <div>{new Date(transaction.date).toLocaleString()}</div>
-          </AccordionSummary>
-          <AccordionDetails>
-            <div>User: {transaction.userEmail}</div>
-            <div>Product: {transaction.productName}</div>
-            <div>Quantity: {transaction.quantity}</div>
-            <div>Description: {transaction.description}</div>
-          </AccordionDetails>
-        </Accordion>
-      ))}
-    </div>
+    <>
+      {CheckLoginStatus() === true ? (
+        <div style={{ color: "black" }}>
+          <h1>Recent Transactions</h1>
+          <Nav active="recent" />
+          {transactions.map((transaction) => (
+            <Accordion key={transaction._id} sx={AccordionStyle}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <div>{new Date(transaction.date).toLocaleString()}</div>
+              </AccordionSummary>
+              <AccordionDetails>
+                <div>User: {transaction.userEmail}</div>
+                <div>Product: {transaction.productName}</div>
+                <div>Quantity: {transaction.quantity}</div>
+                <div>Description: {transaction.description}</div>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div>
+      ) : (
+        <></> // CheckLoginStatus() is false
+      )}
+    </>
   );
 }

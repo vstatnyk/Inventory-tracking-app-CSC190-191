@@ -3,6 +3,7 @@ import FilterMenu from "../components/FilterMenu";
 import InventoryList from "../components/InventoryList";
 import Nav from "../components/Nav";
 import { getItems } from "../utils/api";
+import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
@@ -32,10 +33,16 @@ export default function Inventory() {
 
   return (
     <>
-      <h1>Inventory</h1>
-      <Nav active="inventory" />
-      <FilterMenu onFilterSubmit={handleFilterSubmit} />
-      <InventoryList items={items} />
+      {CheckLoginStatus() === true ? (
+        <>
+          <h1>Inventory</h1>
+          <Nav active="inventory" />
+          <FilterMenu onFilterSubmit={handleFilterSubmit} />
+          <InventoryList items={items} />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
