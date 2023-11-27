@@ -2,21 +2,19 @@ import { getAuth, signOut } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 export default function Nav({ active }) {
   const navigate = useNavigate();
-Nav.propTypes = {
-  active: PropTypes.string.isRequired,
-};
+  Nav.propTypes = {
+    active: PropTypes.string.isRequired,
+  };
 
-const [activePage, setActive] = useState(false);
+  const [activePage, setActive] = useState(false);
 
-useEffect(() => {
-  setActive(active);
-}, [active]);
-
+  useEffect(() => {
+    setActive(active);
+  }, [active]);
 
   const auth = getAuth();
 
@@ -46,8 +44,7 @@ useEffect(() => {
             </Link>
           ) : (
             <Link to="/inventory">Inventory</Link>
-          )
-          }
+          )}
         </li>
         <li>
           {activePage === "accounts" ? (
@@ -56,11 +53,12 @@ useEffect(() => {
             </Link>
           ) : (
             <Link to="/accounts">Accounts</Link>
-          )
-          }
+          )}
         </li>
         <li>
-          <button onClick={handleLogoutClick}>Logout</button>
+          <button className="logoutBtn" onClick={handleLogoutClick}>
+            Logout
+          </button>
         </li>
       </ul>
     </nav>

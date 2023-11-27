@@ -1,3 +1,5 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useEffect, useState } from "react";
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
@@ -9,12 +11,14 @@ export default function InventoryList({ items }) {
   const [inventoryItems, setInventoryItems] = useState(items);
   const [prevInputValues, setPrevInputValues] = useState({});
 
-  const nextItemId = Math.max(...inventoryItems.map((item) => item._id), 0) + 1;
+  // const nextItemId = Math.max(...inventoryItems.map((item) => item._id), 0) + 1;
 
+  //sets inventoryItems to items when items changes
   useEffect(() => {
     setInventoryItems(items);
   }, [items]);
 
+  //sets inputValues to items when items changes
   useEffect(() => {
     const initialInputValues = {};
     inventoryItems.forEach((item) => {
@@ -25,6 +29,7 @@ export default function InventoryList({ items }) {
     setInputValues(initialInputValues);
   }, [inventoryItems]);
 
+  //changes editState when button is clicked
   const changeEditState = (id) => {
     setEditState((prevState) => ({
       ...prevState,
@@ -46,7 +51,8 @@ export default function InventoryList({ items }) {
     changeEditState(itemId);
     const newPrevInputValues = { ...prevInputValues };
     Object.keys(items[0]).forEach((property) => {
-      newPrevInputValues[`${property}${itemId}`] = inputValues[`${property}${itemId}`];
+      newPrevInputValues[`${property}${itemId}`] =
+        inputValues[`${property}${itemId}`];
     });
     setPrevInputValues(newPrevInputValues);
   };
@@ -92,34 +98,73 @@ export default function InventoryList({ items }) {
     await deleteItem("654cba23c3cd420a26de383a", localStorage.getItem("token"));
   };
 
+  //styles for MUI components
+  const AccordionStyle = {
+    justifyContent: "center",
+    height: "auto",
+    width: "95%",
+    margin: "auto",
+    backgroundColor: "#7f7f7f",
+    color: "white",
+    marginBottom: "5px",
+    marginTop: "5px",
+    //text size
+
+    // style for when accordion is expanded
+    "&.Mui-expanded": {
+      justifyContent: "center",
+      height: "auto",
+      width: "95%",
+      margin: "auto",
+      backgroundColor: "#7f7f7f",
+      color: "white",
+      marginBottom: "5px",
+      marginTop: "5px",
+    },
+  };
+
   return (
-    <div className="inventoryContainer">
+    <div>
       <button onClick={handleAddItem}>Add Item</button>
       {inventoryItems.map((item) => (
-        <div className="inventoryItem" key={item._id}>
-          {Object.keys(item).map((property) => (
-            <div className="inventoryRow" key={property}>
-              {property}: 
-              <input
-                type="text"
-                className="inventoryInput"
-                style={{
-                  border: editState[item._id]
-                    ? "1px solid white"
-                    : "1px solid transparent",
-                }}
-                disabled={!editState[item._id]}
-                id={`${property}${item._id}`}
-                value={inputValues[`${property}${item._id}`] || ''}
-                onChange={(e) =>
-                  handleInputChange(property, e.target.value, item)
-                }
-              />
-              <br />
-            </div>
-          ))}
-          <br />
-          <div className="inventoryButtons">
+        <Accordion
+          className="inventoryEntry"
+          key={item._id}
+          sx={AccordionStyle}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <div>{item.name}</div>
+          </AccordionSummary>
+
+          <AccordionDetails className="inventoryDetails">
+            {Object.keys(item).map((property) => (
+              <div className="inventoryRow" key={property}>
+                {property}:
+                <input
+                  type="text"
+                  className="inventoryInput"
+                  style={{
+                    border: editState[item._id]
+                      ? "1px solid white"
+                      : "1px solid transparent",
+                  }}
+                  disabled={!editState[item._id]}
+                  id={`${property}${item._id}`}
+                  value={inputValues[`${property}${item._id}`] || ""}
+                  onChange={(e) =>
+                    handleInputChange(property, e.target.value, item)
+                  }
+                />
+                <br />
+              </div>
+            ))}
+
+            <div className="inventoryButtons"> </div>
+
             {editState[item._id] ? (
               <div className="buttonContainer">
                 <button
@@ -151,8 +196,8 @@ export default function InventoryList({ items }) {
                 </button>
               </div>
             )}
-          </div>
-        </div>
+          </AccordionDetails>
+        </Accordion>
       ))}
     </div>
   );

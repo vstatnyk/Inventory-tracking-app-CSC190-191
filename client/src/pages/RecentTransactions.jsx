@@ -1,8 +1,28 @@
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
-import { useState, useEffect } from "react";
 import { getTransactions } from "../utils/api";
-import { Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+//styles for MUI components
+const AccordionStyle = {
+  justifyContent: "center",
+  height: "auto",
+  width: "95%",
+  margin: "auto",
+  backgroundColor: "#7f7f7f",
+  color: "white",
+
+  // style for when accordion is expanded
+  "&.Mui-expanded": {
+    justifyContent: "center",
+    height: "auto",
+    width: "95%",
+    margin: "auto",
+    backgroundColor: "#7f7f7f",
+    color: "white",
+  },
+};
 
 export default function RecentTransactions() {
   const [transactions, setTransactions] = useState([]);
@@ -22,21 +42,21 @@ export default function RecentTransactions() {
       <h1>Recent Transactions</h1>
       <Nav active="recent" />
       {transactions.map((transaction) => (
-        <Accordion key={transaction._id}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography>{new Date(transaction.date).toLocaleString()}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography>User: {transaction.userEmail}</Typography>
-          <Typography>Product: {transaction.productName}</Typography>
-          <Typography>Quantity: {transaction.quantity}</Typography>
-          <Typography>Description: {transaction.description}</Typography>
-        </AccordionDetails>
-      </Accordion>
+        <Accordion key={transaction._id} sx={AccordionStyle}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <div>{new Date(transaction.date).toLocaleString()}</div>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>User: {transaction.userEmail}</div>
+            <div>Product: {transaction.productName}</div>
+            <div>Quantity: {transaction.quantity}</div>
+            <div>Description: {transaction.description}</div>
+          </AccordionDetails>
+        </Accordion>
       ))}
     </div>
   );

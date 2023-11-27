@@ -3,6 +3,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {
   Box,
   Button,
+  Container,
   IconButton,
   InputAdornment,
   TextField,
@@ -20,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import logo from "../images/mosqeet.png";
 import { loginUser } from "../utils/api";
 
+//styles for MUI components
 const StyledTextField = styled(TextField)({
   "& label.Mui-focused": {
     color: "black",
@@ -48,6 +50,43 @@ const StyledTextField = styled(TextField)({
     borderColor: "black",
   },
 });
+
+const containerStyle = {
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  height: "100vh",
+};
+
+const boxStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 2,
+  width: "100%",
+  maxWidth: "60%",
+  margin: "auto",
+  alignItems: "center",
+  // border: "1px solid black",
+  padding: 3,
+};
+
+const showPasswordStyle = {
+  justifyItems: "center",
+  color: "black",
+  "&:focus": {
+    outline: "none",
+  },
+  "&:hover": {
+    backgroundColor: "#323235",
+  },
+};
+
+const forgotPasswordStyle = {
+  cursor: "pointer",
+  "&:hover": {
+    textDecoration: "underline",
+  },
+};
 
 export default function Login() {
   const auth = getAuth();
@@ -119,13 +158,13 @@ export default function Login() {
   }, [navigate]);
 
   return (
-    <>
-      <div>
+    <Container sx={containerStyle}>
+      <div className="logo">
         <img src={logo} />
       </div>
-      <h1>Login</h1>
+
       <form onSubmit={handleFormSubmit}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={boxStyle}>
           <StyledTextField
             label="Email"
             variant="outlined"
@@ -153,15 +192,7 @@ export default function Login() {
                 <InputAdornment position="end">
                   <IconButton
                     onClick={handleClickShowPassword}
-                    sx={{
-                      color: "black",
-                      "&:focus": {
-                        outline: "none",
-                      },
-                      "&:hover": {
-                        backgroundColor: "#323235",
-                      },
-                    }}
+                    sx={showPasswordStyle}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -173,12 +204,7 @@ export default function Login() {
             variant="body2"
             color="primary"
             onClick={handleOpenDialog}
-            sx={{
-              cursor: "pointer",
-              "&:hover": {
-                textDecoration: "underline",
-              },
-            }}
+            sx={forgotPasswordStyle}
           >
             Forgot Password?
           </Typography>
@@ -232,6 +258,6 @@ export default function Login() {
           {errorMessage && <Box sx={{ color: "red" }}>{errorMessage}</Box>}
         </Box>
       </form>
-    </>
+    </Container>
   );
 }

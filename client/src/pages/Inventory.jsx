@@ -1,8 +1,8 @@
+import { useEffect, useState } from "react";
+import FilterMenu from "../components/FilterMenu";
 import InventoryList from "../components/InventoryList";
 import Nav from "../components/Nav";
 import { getItems } from "../utils/api";
-import { useEffect, useState } from "react";
-import FilterMenu from "../components/FilterMenu";
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
@@ -11,7 +11,12 @@ export default function Inventory() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const itemsApi = await getItems(filterCriteria.name, filterCriteria.description, filterCriteria.quantity, localStorage.getItem("token"));
+        const itemsApi = await getItems(
+          filterCriteria.name,
+          filterCriteria.description,
+          filterCriteria.quantity,
+          localStorage.getItem("token")
+        );
         setItems(itemsApi);
       } catch (error) {
         console.error("Error fetching items:", error.message);
