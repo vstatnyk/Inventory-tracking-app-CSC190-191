@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import FilterMenu from "../components/FilterMenu";
 import InventoryList from "../components/InventoryList";
 import Nav from "../components/Nav";
-import { getItems } from "../utils/api";
 import { CheckLoginStatus } from "../functions/CheckLoginStatus";
+import { getItems } from "../utils/api";
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
@@ -35,7 +35,7 @@ export default function Inventory() {
     <>
       {CheckLoginStatus() === true ? (
         <>
-          <h1>Inventory</h1>
+          {/* <h1>Inventory</h1> */}
           <Nav active="inventory" />
           <FilterMenu onFilterSubmit={handleFilterSubmit} />
           <InventoryList items={items} />
