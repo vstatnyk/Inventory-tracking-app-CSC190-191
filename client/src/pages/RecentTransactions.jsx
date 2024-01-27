@@ -32,7 +32,6 @@ export default function RecentTransactions() {
   useEffect(() => {
     const fetchTransactions = async () => {
       const data = await getTransactions(localStorage.getItem("token"));
-      console.log(data);
       setTransactions(data);
     };
 

@@ -95,7 +95,7 @@ export default function InventoryList({ items }) {
   const handleDeleteItem = async (itemId) => {
     const updatedItems = inventoryItems.filter((item) => item._id !== itemId);
     setInventoryItems(updatedItems);
-    await deleteItem("654cba23c3cd420a26de383a", localStorage.getItem("token"));
+    await deleteItem(itemId, localStorage.getItem("token"));
   };
 
   //styles for MUI components
