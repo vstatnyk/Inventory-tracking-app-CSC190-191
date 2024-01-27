@@ -153,6 +153,7 @@ button {
 .filter-menu {
   padding: 20px;
   background: rgb(255, 255, 255);
+  border: 2px solid black;
   text-align: center;
   margin: auto;
   color: black;

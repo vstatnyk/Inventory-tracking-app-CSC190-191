@@ -2,9 +2,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
-import { getTransactions } from "../utils/api";
 import { CheckLoginStatus } from "../functions/CheckLoginStatus";
-
+import { getTransactions } from "../utils/api";
 
 //styles for MUI components
 const AccordionStyle = {
@@ -42,7 +41,7 @@ export default function RecentTransactions() {
     <>
       {CheckLoginStatus() === true ? (
         <div style={{ color: "black" }}>
-          <h1>Recent Transactions</h1>
+          {/* <h1>Recent Transactions</h1> */}
           <Nav active="recent" />
           {transactions.map((transaction) => (
             <Accordion key={transaction._id} sx={AccordionStyle}>

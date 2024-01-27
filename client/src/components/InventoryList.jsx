@@ -64,7 +64,7 @@ export default function InventoryList({ items }) {
     }));
   };
 
-  const handleSaveClick = (itemId) => {
+  const handleSaveClick = async (itemId) => {
     const updatedItem = { ...inventoryItems.find((i) => i._id === itemId) };
     Object.keys(updatedItem).forEach((property) => {
       updatedItem[property] = inputValues[`${property}${itemId}`];
@@ -74,27 +74,36 @@ export default function InventoryList({ items }) {
       items.map((item) => (item._id === itemId ? updatedItem : item))
     );
     handleEditClick(itemId); // Close the edit mode
+    await updateItem(
+      itemId,
+      items.name,
+      items.description,
+      items.quantity,
+       localStorage.getItem("token"));
   };
 
   const handleAddItem = async () => {
     const newItemObject = {
-      _id: Math.random().toString(36).substr(2, 9), // Generate a random id
       name: "New Item",
-      stock: 0,
-      checkedOut: 0,
+      description: "This is a new item",
+      quantity: 0,
     };
+    // Add the new item to front end
     setInventoryItems([...inventoryItems, newItemObject]);
+    // Add new item to database
     await createItem(
-      "Testing check",
-      "This is a new variable",
-      0,
+      newItemObject.name,
+      newItemObject.description,
+      newItemObject.quantity,
       localStorage.getItem("token")
     );
   };
 
   const handleDeleteItem = async (itemId) => {
+    // Delete item on front end
     const updatedItems = inventoryItems.filter((item) => item._id !== itemId);
     setInventoryItems(updatedItems);
+    // Delete the item from the database
     await deleteItem(itemId, localStorage.getItem("token"));
   };
 
