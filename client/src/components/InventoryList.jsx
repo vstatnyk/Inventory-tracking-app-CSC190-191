@@ -1,24 +1,22 @@
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useEffect, useState } from "react";
+import QRCode from "qrcode.react";
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
-import { createItem, deleteItem } from "../utils/api";
+import { createItem, deleteItem, updateItem } from "../utils/api";
 
 export default function InventoryList({ items }) {
   const [editState, setEditState] = useState({});
   const [inputValues, setInputValues] = useState({});
   const [inventoryItems, setInventoryItems] = useState(items);
   const [prevInputValues, setPrevInputValues] = useState({});
+  const [qrcodes, setQrcodes] = useState({});
 
-  // const nextItemId = Math.max(...inventoryItems.map((item) => item._id), 0) + 1;
-
-  //sets inventoryItems to items when items changes
   useEffect(() => {
     setInventoryItems(items);
   }, [items]);
 
-  //sets inputValues to items when items changes
   useEffect(() => {
     const initialInputValues = {};
     inventoryItems.forEach((item) => {
@@ -27,9 +25,28 @@ export default function InventoryList({ items }) {
       });
     });
     setInputValues(initialInputValues);
+
+    // Generate QR codes for all items
+    const qrCodeData = {};
+    inventoryItems.forEach((item) => {
+      qrCodeData[item._id] = generateQRCode(item);
+    });
+    setQrcodes(qrCodeData);
   }, [inventoryItems]);
 
-  //changes editState when button is clicked
+  const generateQRCode = (item) => {
+    const qrCodeData = {
+      department: item.department,
+      _id: item._id,
+      name: item.name,
+      description: item.description,
+      quantity: item.quantity,
+    };
+
+    const qrCodeString = JSON.stringify(qrCodeData);
+    return <QRCode value={qrCodeString} />;
+  };
+
   const changeEditState = (id) => {
     setEditState((prevState) => ({
       ...prevState,
@@ -73,13 +90,21 @@ export default function InventoryList({ items }) {
     setInventoryItems((items) =>
       items.map((item) => (item._id === itemId ? updatedItem : item))
     );
-    handleEditClick(itemId); // Close the edit mode
+    handleEditClick(itemId);
     await updateItem(
       itemId,
-      items.name,
-      items.description,
-      items.quantity,
-       localStorage.getItem("token"));
+      inputValues[`name${itemId}`],
+      inputValues[`description${itemId}`],
+      inputValues[`quantity${itemId}`],
+      localStorage.getItem("token"),
+      inputValues[`department${itemId}`]
+    );
+
+    // Regenerate QR code after item update
+    setQrcodes((prevQrcodes) => ({
+      ...prevQrcodes,
+      [itemId]: generateQRCode(updatedItem),
+    }));
   };
 
   const handleAddItem = async () => {
@@ -87,27 +112,36 @@ export default function InventoryList({ items }) {
       name: "New Item",
       description: "This is a new item",
       quantity: 0,
+      department: "Your Department",
     };
-    // Add the new item to front end
     setInventoryItems([...inventoryItems, newItemObject]);
-    // Add new item to database
-    await createItem(
+    const newItem = await createItem(
       newItemObject.name,
       newItemObject.description,
       newItemObject.quantity,
-      localStorage.getItem("token")
+      localStorage.getItem("token"),
+      newItemObject.department
     );
+
+    // Generate QR code for the new item
+    setQrcodes((prevQrcodes) => ({
+      ...prevQrcodes,
+      [newItem._id]: generateQRCode(newItem),
+    }));
   };
 
   const handleDeleteItem = async (itemId) => {
-    // Delete item on front end
     const updatedItems = inventoryItems.filter((item) => item._id !== itemId);
     setInventoryItems(updatedItems);
-    // Delete the item from the database
     await deleteItem(itemId, localStorage.getItem("token"));
+    // Remove QR code for the deleted item
+    setQrcodes((prevQrcodes) => {
+      const newQrcodes = { ...prevQrcodes };
+      delete newQrcodes[itemId];
+      return newQrcodes;
+    });
   };
 
-  //styles for MUI components
   const AccordionStyle = {
     justifyContent: "center",
     height: "auto",
@@ -117,9 +151,7 @@ export default function InventoryList({ items }) {
     color: "white",
     marginBottom: "5px",
     marginTop: "5px",
-    //text size
 
-    // style for when accordion is expanded
     "&.Mui-expanded": {
       justifyContent: "center",
       height: "auto",
@@ -172,7 +204,7 @@ export default function InventoryList({ items }) {
               </div>
             ))}
 
-            <div className="inventoryButtons"> </div>
+            <div className="inventoryButtons"></div>
 
             {editState[item._id] ? (
               <div className="buttonContainer">
@@ -205,6 +237,8 @@ export default function InventoryList({ items }) {
                 </button>
               </div>
             )}
+            {/* Display the QR code for each item */}
+            <div className="qrCodeContainer">{qrcodes[item._id]}</div>
           </AccordionDetails>
         </Accordion>
       ))}
