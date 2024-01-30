@@ -58,12 +58,29 @@ export const deleteItem = async (id, token) => {
   return response.data;
 };
 
-export const registerUser = async (email, password, role) => {
-  const response = await axios.post(`${BASE_URL}/users/register`, {
-    email: email,
-    password: password,
-    role: role,
+export const getUsers = async (token) => {
+  const response = await axios.get(`${BASE_URL}/users/accounts`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
+  return response.data;
+};
+
+export const registerUser = async (email, password, role, token) => {
+  const response = await axios.post(
+    `${BASE_URL}/users/register`,
+    {
+      email: email,
+      password: password,
+      role: role,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 };
 
@@ -81,6 +98,32 @@ export const loginUser = async (email, password) => {
       throw error;
     }
   }
+};
+
+export const deleteUser = async (uid, token) => {
+  const response = await axios.delete(`${BASE_URL}/users/delete/${uid}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const updateUser = async (uid, email, password, role, token) => {
+  const response = await axios.put(
+    `${BASE_URL}/users/update/${uid}`,
+    {
+      email: email,
+      password: password,
+      role: role,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
 };
 
 export const getTransactions = async (token) => {

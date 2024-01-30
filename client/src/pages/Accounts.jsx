@@ -1,22 +1,32 @@
-import InventoryList from "../components/AccountList";
+import { useEffect, useState } from "react";
+import AccountList from "../components/AccountList";
 import Nav from "../components/Nav";
 import { CheckLoginStatus } from "../functions/CheckLoginStatus";
+import { getUsers } from "../utils/api";
 
 export default function Accounts() {
-  // array for testing
-  let accounts = [
-    { id: 1, name: "name 1", email: "email 1", role: "admin" },
-    { id: 2, name: "name 2", email: "email 2", role: "admin" },
-    { id: 3, name: "name 3", email: "email 3", role: "user" },
-    { id: 4, name: "name 4", email: "email 4", role: "user" },
-  ];
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const users = await getUsers(localStorage.getItem("token"));
+        setUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error.message);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
   return (
     <>
       {CheckLoginStatus() === true ? (
         <>
           {/* <h1>Accounts</h1> */}
           <Nav active="accounts" />
-          <InventoryList accounts_p={accounts} />
+          <AccountList accounts_p={users} />
         </>
       ) : (
         <></> // CheckLoginStatus() false

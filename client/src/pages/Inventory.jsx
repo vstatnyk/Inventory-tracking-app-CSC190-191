@@ -12,13 +12,13 @@ export default function Inventory() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const itemsApi = await getItems(
+        const items = await getItems(
           filterCriteria.name,
           filterCriteria.description,
           filterCriteria.quantity,
           localStorage.getItem("token")
         );
-        setItems(itemsApi);
+        setItems(items);
       } catch (error) {
         console.error("Error fetching items:", error.message);
       }

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
+import { deleteUser, registerUser, updateUser } from "../utils/api";
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
@@ -8,14 +9,15 @@ export default function AccountList({ accounts_p }) {
   const [accounts, setAccounts] = useState(accounts_p);
   const [prevInputValues, setPrevInputValues] = useState({});
 
-  const nextItemId =
-    Math.max(...accounts.map((account) => account.id), 0) + 1;
+  useEffect(() => {
+    setAccounts(accounts_p);
+  }, [accounts_p]);
 
   useEffect(() => {
     const initialInputValues = {};
     accounts.forEach((account) => {
       Object.keys(account).forEach((property) => {
-        initialInputValues[`${property}${account.id}`] = account[property];
+        initialInputValues[`${property}${account.uid}`] = account[property];
       });
     });
     setInputValues(initialInputValues);
@@ -48,55 +50,57 @@ export default function AccountList({ accounts_p }) {
   };
 
   const handleInputChange = (property, value, account) => {
-    if (property === "id") {
-      // Allow only numeric input for id
-      value = value.replace(/[^0-9]/g, "");
-    } else if (property === "name") {
-      // Allow only alphabets for name
-      value = value.replace(/[^a-zA-Z ]/g, "");
-    }
-
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
-      [`${property}${account.id}`]: value,
+      [`${property}${account.uid}`]: value,
     }));
   };
 
-  const handleSaveClick = (id) => {
-    const updatedAccount = { ...accounts.find((i) => i.id === id) };
+  const handleSaveClick = async (id) => {
+    const updatedAccount = { ...accounts.find((i) => i.uid === id) };
     Object.keys(updatedAccount).forEach((property) => {
       updatedAccount[property] = inputValues[`${property}${id}`];
     });
     setAccounts((accounts) =>
-      accounts.map((account) => (account.id === id ? updatedAccount : account))
+      accounts.map((account) => (account.uid === id ? updatedAccount : account))
     );
-    changeEditState(id); // Close the edit mode
+    handleEditClick(id); // Close the edit mode
+    await updateUser(
+      id,
+      inputValues[`email${id}`],
+      inputValues[`password${id}`],
+      inputValues[`role${id}`],
+      localStorage.getItem("token")
+    );
   };
 
   const handleAddAccount = async () => {
-    const newItemObject = {
-      id: nextItemId,
-      name: "new name",
-      email: "new email",
-      role: "user",
+    const newUserObject = {
+      email: "testing@testing.com",
+      password: "testing123",
+      role: 4,
     };
-    setAccounts([...accounts, newItemObject]);
-    // needs to be updated to relevant account creation api?
-    //await createItem("Testing check", "This is a new variable", 0, localStorage.getItem("token"));
+    setAccounts([...accounts, newUserObject]);
+    await registerUser(
+      newUserObject.email,
+      newUserObject.password,
+      newUserObject.role,
+      localStorage.getItem("token")
+    );
   };
 
   const handleDeleteAccount = async (id) => {
-    const updatedAccounts = accounts.filter((account) => account.id !== id);
+    const updatedAccounts = accounts.filter((account) => account.uid !== id);
     setAccounts(updatedAccounts);
     // should be updated to relevant account deletion api
-    //await deleteItem('654cba23c3cd420a26de383a',localStorage.getItem("token") );
+    await deleteUser(id, localStorage.getItem("token"));
   };
 
   return (
     <div className="accountContainer">
       <button onClick={handleAddAccount}>Add Account</button>
       {accounts.map((account) => (
-        <div className="account" key={account.id}>
+        <div className="account" key={account.uid}>
           {Object.keys(account).map((property) => (
             <div className="accountRow" key={property}>
               {property}:
@@ -104,13 +108,13 @@ export default function AccountList({ accounts_p }) {
                 <select
                   className="accountInput"
                   style={{
-                    border: editState[account.id]
+                    border: editState[account.uid]
                       ? "1px solid white"
                       : "1px solid transparent",
                   }}
-                  disabled={!editState[account.id]}
-                  id={`${property}${account.id}`}
-                  value={inputValues[`${property}${account.id}`]}
+                  disabled={!editState[account.uid]}
+                  id={`${property}${account.uid}`}
+                  value={inputValues[`${property}${account.uid}`]}
                   onChange={(e) =>
                     handleInputChange(property, e.target.value, account)
                   }
@@ -119,18 +123,18 @@ export default function AccountList({ accounts_p }) {
                   <option value="admin">Admin</option>
                   <option value="user">User</option>
                 </select>
-              ) : property === "id" ? (
+              ) : property === "uid" ? (
                 <input
                   type="text"
                   className="accountInput"
                   style={{
-                    border: editState[account.id]
+                    border: editState[account.uid]
                       ? "1px solid white"
                       : "1px solid transparent",
                   }}
-                  disabled={!editState[account.id]}
-                  id={`${property}${account.id}`}
-                  value={inputValues[`${property}${account.id}`]}
+                  disabled={true}
+                  id={`${property}${account.uid}`}
+                  value={inputValues[`${property}${account.uid}`]}
                   onChange={(e) =>
                     handleInputChange(property, e.target.value, account)
                   }
@@ -140,13 +144,13 @@ export default function AccountList({ accounts_p }) {
                   type="text"
                   className="accountInput"
                   style={{
-                    border: editState[account.id]
+                    border: editState[account.uid]
                       ? "1px solid white"
                       : "1px solid transparent",
                   }}
-                  disabled={!editState[account.id]}
-                  id={`${property}${account.id}`}
-                  value={inputValues[`${property}${account.id}`]}
+                  disabled={!editState[account.uid]}
+                  id={`${property}${account.uid}`}
+                  value={inputValues[`${property}${account.uid}`]}
                   onChange={(e) =>
                     handleInputChange(property, e.target.value, account)
                   }
@@ -157,17 +161,17 @@ export default function AccountList({ accounts_p }) {
           ))}
           <br />
           <div className="accountButtons">
-            {editState[account.id] ? (
+            {editState[account.uid] ? (
               <div className="accountButtonContainer">
                 <button
-                  id={`saveButton${account.id}`}
-                  onClick={() => handleSaveClick(account.id)}
+                  id={`saveButton${account.uid}`}
+                  onClick={() => handleSaveClick(account.uid)}
                 >
                   Save
                 </button>
                 <button
-                  id={`button${account.id}`}
-                  onClick={() => handleCancelClick(account.id)}
+                  id={`button${account.uid}`}
+                  onClick={() => handleCancelClick(account.uid)}
                 >
                   Cancel
                 </button>
@@ -175,14 +179,14 @@ export default function AccountList({ accounts_p }) {
             ) : (
               <div className="buttonContainer">
                 <button
-                  id={`button${account.id}`}
-                  onClick={() => handleEditClick(account.id)}
+                  id={`button${account.uid}`}
+                  onClick={() => handleEditClick(account.uid)}
                 >
                   <img src={edit} alt="Edit Item" className="image" />
                 </button>
                 <button
-                  id={`button${account.id}`}
-                  onClick={() => handleDeleteAccount(account.id)}
+                  id={`button${account.uid}`}
+                  onClick={() => handleDeleteAccount(account.uid)}
                 >
                   <img src={del} alt="Delete Item" className="image" />
                 </button>
