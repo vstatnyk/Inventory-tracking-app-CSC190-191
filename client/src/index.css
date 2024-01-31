@@ -215,3 +215,7 @@ button {
   justify-content: center;
   align-items: center;
 }
+
+.popup {
+  background-color: grey;
+}
