@@ -219,3 +219,27 @@ button {
 .popup {
   background-color: grey;
 }
+
+.accountSwiper {
+  overflow: auto;
+}
+
+.accountSwiper .swiper-wrapper {
+  height: 800px;
+
+}
+
+.accountSwiper .swiper-pagination {
+  bottom: 10px;
+}
+
+.accountSwiper .swiper-pagination-bullet {
+  background-color: grey;
+  width: 8px;
+  height: 8px;
+  bottom: 0px;
+}
+
+.accountSwiper .swiper-pagination-bullet-active {
+  background-color: #007bab;
+}
