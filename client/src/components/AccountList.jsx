@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Grid, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/grid';
+import 'swiper/css/pagination';
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
@@ -96,104 +101,190 @@ export default function AccountList({ accounts_p }) {
     await deleteUser(id, localStorage.getItem("token"));
   };
 
+  // handles changeRole Drop down
+  const handleChangeRole = async (id,value) => {
+  const updatedAccount = { ...accounts.find((i) => i.uid === id) };
+
+    // Modify the existing account to new access Level
+    updatedAccount.customClaims.accessLevel = mapAccessLevelToInt(value);
+
+    await updateUser(
+      id,
+      inputValues[`email${id}`],
+      inputValues[`password${id}`],
+      inputValues[`role${id}`],
+      localStorage.getItem("token")
+    );
+  };
+
+  const mapAccessLevelToString = (accessLevel) => {
+    switch (accessLevel) {
+      case 1:
+        return "Employee";
+      case 2:
+        return "Supervisor";
+      case 3:
+        return "Manager";
+      case 4:
+        return "Admin";
+      default:
+        return "Unknown";
+    }
+  };  
+
+  // handles input as a string and returns int
+  // corresponding to accessLevel
+  const mapAccessLevelToInt = (accessLevel) => {
+    switch (accessLevel) {
+      case "Employee":
+        return 1 ;
+      case "Supervisor":
+        return 2 ;
+      case "Manager":
+        return 3;
+      case "Admin":
+        return 4;
+      default:
+        return "Unknown";
+    }
+  };
+
   return (
-    <div className="accountContainer">
+    <Swiper
+      slidesPerView={3}
+      grid={{
+        rows: 2,
+        fill: 'row',
+      }}
+      spaceBetween={15}
+      modules={[Grid, Pagination]}
+      pagination={{ 
+        dynamicBullets: true,
+        clickable: true,
+      }}
+      className="accountSwiper"
+    >
       {accounts.map((account) => (
-        <div className="account" key={account.uid}>
-          {Object.keys(account).map((property) => (
-            <div className="accountRow" key={property}>
-              {property}:
-              {property === "role" ? (
-                <select
-                  className="accountInput"
-                  style={{
-                    border: editState[account.uid]
-                      ? "1px solid white"
-                      : "1px solid transparent",
-                  }}
-                  disabled={!editState[account.uid]}
-                  id={`${property}${account.uid}`}
-                  value={inputValues[`${property}${account.uid}`]}
-                  onChange={(e) =>
-                    handleInputChange(property, e.target.value, account)
-                  }
-                >
-                  {/* Add your role options here */}
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
-                </select>
-              ) : property === "uid" ? (
-                <input
-                  type="text"
-                  className="accountInput"
-                  style={{
-                    border: editState[account.uid]
-                      ? "1px solid white"
-                      : "1px solid transparent",
-                  }}
-                  disabled={true}
-                  id={`${property}${account.uid}`}
-                  value={inputValues[`${property}${account.uid}`]}
-                  onChange={(e) =>
-                    handleInputChange(property, e.target.value, account)
-                  }
-                />
-              ) : (
-                <input
-                  type="text"
-                  className="accountInput"
-                  style={{
-                    border: editState[account.uid]
-                      ? "1px solid white"
-                      : "1px solid transparent",
-                  }}
-                  disabled={!editState[account.uid]}
-                  id={`${property}${account.uid}`}
-                  value={inputValues[`${property}${account.uid}`]}
-                  onChange={(e) =>
-                    handleInputChange(property, e.target.value, account)
-                  }
-                />
-              )}
-              <br />
-            </div>
-          ))}
-          <br />
-          <div className="accountButtons">
-            {editState[account.uid] ? (
-              <div className="accountButtonContainer">
-                <button
-                  id={`saveButton${account.uid}`}
-                  onClick={() => handleSaveClick(account.uid)}
-                >
-                  Save
-                </button>
-                <button
-                  id={`button${account.uid}`}
-                  onClick={() => handleCancelClick(account.uid)}
-                >
-                  Cancel
-                </button>
+        <SwiperSlide key={account.uid}>
+          <div className="account">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+              alt="Placeholder"
+              className="placeholder-image"
+              style={{ width: '75px', height: '75px' }}
+            />       
+            {Object.keys(account).map((property) => (
+              <div className="accountRow" key={property}>
+                {property === "customClaims" ? null : (
+                  <>
+                    {property}:
+                    {property === "role" ? (
+                      <select
+                        className="accountInput"
+                        style={{
+                          border: editState[account.uid]
+                            ? "1px solid white"
+                            : "1px solid transparent",
+                        }}
+                        disabled={!editState[account.uid]}
+                        id={`${property}${account.uid}`}
+                        value={inputValues[`${property}${account.uid}`]}
+                        onChange={(e) =>
+                          handleInputChange(property, e.target.value, account)
+                        }
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                      </select>
+                    ) : property === "uid" ? (
+                      <input
+                        type="text"
+                        className="accountInput"
+                        style={{
+                          border: editState[account.uid]
+                            ? "1px solid white"
+                            : "1px solid transparent",
+                        }}
+                        disabled={true}
+                        id={`${property}${account.uid}`}
+                        value={inputValues[`${property}${account.uid}`]}
+                        onChange={(e) =>
+                          handleInputChange(property, e.target.value, account)
+                        }
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        className="accountInput"
+                        style={{
+                          border: editState[account.uid]
+                            ? "1px solid white"
+                            : "1px solid transparent",
+                        }}
+                        disabled={!editState[account.uid]}
+                        id={`${property}${account.uid}`}
+                        value={inputValues[`${property}${account.uid}`]}
+                        onChange={(e) =>
+                          handleInputChange(property, e.target.value, account)
+                        }
+                      />
+                    )}
+                  </>
+                )}
+                {property !== "customClaims" && <br />}
               </div>
-            ) : (
-              <div className="buttonContainer">
-                <button
-                  id={`button${account.uid}`}
-                  onClick={() => handleEditClick(account.uid)}
-                >
-                  <img src={edit} alt="Edit Item" className="image" />
-                </button>
-                <button
-                  id={`button${account.uid}`}
-                  onClick={() => handleDeleteAccount(account.uid)}
-                >
-                  <img src={del} alt="Delete Item" className="image" />
-                </button>
-              </div>
+            ))}
+            <div className="accountRow">
+              Role: {account.customClaims && mapAccessLevelToString(account.customClaims.accessLevel)}
+              {editState[account.uid] && (
+              <select
+                id={`changeRole${account.uid}`}
+                onChange={(e) => handleChangeRole(account.uid, e.target.value)}
+              >
+                <option value="Employee">Employee</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Manager">Manager</option>
+                <option value="Admin">Admin</option>
+              </select>
             )}
+            </div>
+            <br />
+            <div className="accountButtons">
+              {editState[account.uid] ? (
+                <div className="accountButtonContainer">
+                  <button
+                    id={`saveButton${account.uid}`}
+                    onClick={() => handleSaveClick(account.uid)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    id={`button${account.uid}`}
+                    onClick={() => handleCancelClick(account.uid)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="buttonContainer">
+                  <button
+                    id={`button${account.uid}`}
+                    onClick={() => handleEditClick(account.uid)}
+                  >
+                    <img src={edit} alt="Edit Item" className="image" />
+                  </button>
+                  <button
+                    id={`button${account.uid}`}
+                    onClick={() => handleDeleteAccount(account.uid)}
+                  >
+                    <img src={del} alt="Delete Item" className="image" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </SwiperSlide>
       ))}
-    </div>
+    </Swiper>
   );
-}
+}  
