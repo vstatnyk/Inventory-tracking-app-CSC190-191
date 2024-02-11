@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
 });
 
 // Update an item
-router.put("/:id", authorizeUser(2), async (req, res) => {
+router.put("/:id", authorizeUser(1), async (req, res) => {
   const item = await Item.findById(req.params.id);
   const oldQuantity = item.quantity;
 

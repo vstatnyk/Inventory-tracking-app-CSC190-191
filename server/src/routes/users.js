@@ -51,9 +51,6 @@ router.post("/login", async (req, res) => {
       email,
       password
     );
-    await admin
-      .auth()
-      .setCustomUserClaims(userCredential.user.uid, { accessLevel: 4 });
     const token = await userCredential.user.getIdToken();
     res.json({ token });
   } catch (error) {
