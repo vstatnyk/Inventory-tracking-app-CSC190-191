@@ -101,6 +101,22 @@ export default function AccountList({ accounts_p }) {
 	await deleteUser(id, localStorage.getItem("token"));
   };
 
+  // handles changeRole Drop down
+  const handleChangeRole = async (id,value) => {
+  const updatedAccount = { ...accounts.find((i) => i.uid === id) };
+
+    // Modify the existing account to new access Level
+    updatedAccount.customClaims.accessLevel = mapAccessLevelToInt(value);
+
+    await updateUser(
+      id,
+      inputValues[`email${id}`],
+      inputValues[`password${id}`],
+      inputValues[`role${id}`],
+      localStorage.getItem("token")
+    );
+  };
+
   const mapAccessLevelToString = (accessLevel) => {
     switch (accessLevel) {
       case 1:
@@ -115,6 +131,23 @@ export default function AccountList({ accounts_p }) {
         return "Unknown";
     }
   };  
+
+  // handles input as a string and returns int
+  // corresponding to accessLevel
+  const mapAccessLevelToInt = (accessLevel) => {
+    switch (accessLevel) {
+      case "Employee":
+        return 1 ;
+      case "Supervisor":
+        return 2 ;
+      case "Manager":
+        return 3;
+      case "Admin":
+        return 4;
+      default:
+        return "Unknown";
+    }
+  };
 
   return (
     <Swiper
@@ -202,7 +235,18 @@ export default function AccountList({ accounts_p }) {
               </div>
             ))}
             <div className="accountRow">
-            Role: {account.customClaims && mapAccessLevelToString(account.customClaims.accessLevel)}
+              Role: {account.customClaims && mapAccessLevelToString(account.customClaims.accessLevel)}
+              {editState[account.uid] && (
+              <select
+                id={`changeRole${account.uid}`}
+                onChange={(e) => handleChangeRole(account.uid, e.target.value)}
+              >
+                <option value="Employee">Employee</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Manager">Manager</option>
+                <option value="Admin">Admin</option>
+              </select>
+            )}
             </div>
             <br />
             <div className="accountButtons">
