@@ -12,6 +12,7 @@ export default function InventoryList({ items }) {
   const [inventoryItems, setInventoryItems] = useState(items);
   const [prevInputValues, setPrevInputValues] = useState({});
   const [qrcodes, setQrcodes] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     setInventoryItems(items);
@@ -130,17 +131,51 @@ export default function InventoryList({ items }) {
     }));
   };
 
-  const handleDeleteItem = async (itemId) => {
-    const updatedItems = inventoryItems.filter((item) => item._id !== itemId);
-    setInventoryItems(updatedItems);
-    await deleteItem(itemId, localStorage.getItem("token"));
-    // Remove QR code for the deleted item
-    setQrcodes((prevQrcodes) => {
+  function checkItems(e) {
+    let isSelected = e.target.checked;
+    let value = e.target.value;
+
+    if(isSelected) {
+      setSelectedItems( [...selectedItems, value])
+    }
+    else{
+      setSelectedItems((prevData) => {
+        return prevData.filter((_id) => {
+          return _id != value
+        })
+      })
+    }
+  }
+
+  function checkAll(){
+    if( inventoryItems.length === selectedItems.length){
+      setSelectedItems( [] );
+    }
+    else {
+      const postIds = inventoryItems.map((item)=>{
+        return item._id
+      });
+      
+      setSelectedItems( postIds );
+    }
+  }
+
+  const handleDeleteItem = async () => {
+    while(selectedItems.length > 0){
+      const newItemObject = selectedItems[0];
+      const updatedItems = inventoryItems.filter((item) => item._id !== newItemObject);
+      setInventoryItems(updatedItems);
+      await deleteItem(newItemObject, localStorage.getItem("token"));
+      // Remove QR code for the deleted item
+      setQrcodes((prevQrcodes) => {
       const newQrcodes = { ...prevQrcodes };
-      delete newQrcodes[itemId];
+      delete newQrcodes[newItemObject];
       return newQrcodes;
-    });
+      });
+      selectedItems.splice(0, 1);
+    }
   };
+
 
   const AccordionStyle = {
     justifyContent: "center",
@@ -166,7 +201,9 @@ export default function InventoryList({ items }) {
 
   return (
     <div>
+      <button type="button" onClick={checkAll} >{ inventoryItems.length === selectedItems.length ? 'Unselect All' : 'Select all' }</button>
       <button onClick={handleAddItem}>Add Item</button>
+      <button onClick={handleDeleteItem}>Delete Item</button>
       {inventoryItems.map((item) => (
         <Accordion
           className="inventoryEntry"
@@ -178,7 +215,12 @@ export default function InventoryList({ items }) {
             aria-controls="panel1a-content"
             id="panel1a-header"
           >
-            <div>{item.name}</div>
+            <div>
+              <label>
+                <input type="checkbox" checked={ selectedItems.includes( item._id )} value={item._id} onChange={checkItems}  />
+              </label>
+              {item.name}
+              </div>
           </AccordionSummary>
 
           <AccordionDetails className="inventoryDetails">
@@ -228,12 +270,6 @@ export default function InventoryList({ items }) {
                   onClick={() => handleEditClick(item._id)}
                 >
                   <img src={edit} alt="Edit Item" className="image" />
-                </button>
-                <button
-                  id={`button${item._id}`}
-                  onClick={() => handleDeleteItem(item._id)}
-                >
-                  <img src={del} alt="Delete Item" className="image" />
                 </button>
               </div>
             )}
