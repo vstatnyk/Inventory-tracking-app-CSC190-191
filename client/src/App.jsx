@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./index.css";
 import Accounts from "./pages/Accounts";
+import CheckInOut from "./pages/CheckInOut";
 import Inventory from "./pages/Inventory";
 import Login from "./pages/Login";
 import NoPage from "./pages/NoPage";
@@ -16,6 +17,8 @@ function App() {
           <Route path="/recent" element={<RecentTransactions />} />
           <Route path="/inventory" element={<Inventory />} />
           <Route path="/accounts" element={<Accounts />} />
+          <Route path="/checkinout/:id" element={<CheckInOut />} />
+          {/* <Route path="/checkinout" element={<CheckInOut />} /> */}
           <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter>

@@ -1,3 +1,3 @@
 export default function NoPage() {
-  return <>Error 404: Not Found</>;
+  return <h1>Error 404: Not Found</h1>;
 }

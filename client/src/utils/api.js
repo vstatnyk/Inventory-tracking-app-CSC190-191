@@ -15,6 +15,15 @@ export const getItems = async (name, description, quantity, token) => {
   return response.data;
 };
 
+export const getItem = async (id, token) => {
+  const response = await axios.get(`${BASE_URL}/items/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 export const createItem = async (name, description, quantity, token) => {
   const response = await axios.post(
     `${BASE_URL}/items`,
