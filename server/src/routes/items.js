@@ -42,6 +42,17 @@ router.get("/", async (req, res) => {
   res.json(items);
 });
 
+//Get 1 item by id
+router.get("/:id", authorizeUser(1), async (req, res) => {
+  try{
+  const item = await Item.findById(req.params.id);
+  res.json(item);
+  }
+  catch (error) {
+    res.status(404).json({ error: "Item not found" });
+  }
+});
+
 // Update an item
 router.put("/:id", authorizeUser(1), async (req, res) => {
   const item = await Item.findById(req.params.id);
