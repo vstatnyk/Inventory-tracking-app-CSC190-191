@@ -216,10 +216,6 @@ button {
   align-items: center;
 }
 
-.popup {
-  background-color: grey;
-}
-
 .accountSwiper {
   overflow: auto;
 }
