@@ -143,8 +143,14 @@ const AddAccountDialog = () => {
               },
             }}
           >
-          <MenuItem value="department1">Department 1</MenuItem>
-          <MenuItem value="department2">Department 2</MenuItem>
+          <MenuItem value="office">Office</MenuItem>
+          <MenuItem value="finance">Finance</MenuItem>
+          <MenuItem value="public outreach">Public Outreach</MenuItem>
+          <MenuItem value="lab">Lab</MenuItem>
+          <MenuItem value="operations">Operations</MenuItem>
+          <MenuItem value="shop">Shop</MenuItem>
+          <MenuItem value="fisheries">Fisheries</MenuItem>
+          <MenuItem value="it">It</MenuItem>
           </StyledTextField>
         </DialogContent>
         <center>
