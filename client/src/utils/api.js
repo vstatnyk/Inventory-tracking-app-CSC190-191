@@ -24,13 +24,14 @@ export const getItem = async (id, token) => {
   return response.data;
 };
 
-export const createItem = async (name, description, quantity, token) => {
+export const createItem = async (name, description, quantity, department, token) => {
   const response = await axios.post(
     `${BASE_URL}/items`,
     {
       name: name,
       description: description,
       quantity: quantity,
+      department: department,
     },
     {
       headers: {
@@ -41,13 +42,14 @@ export const createItem = async (name, description, quantity, token) => {
   return response.data;
 };
 
-export const updateItem = async (id, name, description, quantity, token) => {
+export const updateItem = async (id, name, description, quantity, department, token) => {
   const response = await axios.put(
     `${BASE_URL}/items/${id}`,
     {
       name: name,
       description: description,
       quantity: quantity,
+      department: department,
     },
     {
       headers: {
