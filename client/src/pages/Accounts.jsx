@@ -3,7 +3,8 @@ import AccountList from "../components/AccountList";
 import Nav from "../components/Nav";
 import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 import { getUsers } from "../utils/api";
-import AddAccount from "../components/AddAccount";
+import AddAccountDialog from "../components/AddAccountDialog";
+
 
 export default function Accounts() {
   const [users, setUsers] = useState([]);
@@ -27,7 +28,7 @@ export default function Accounts() {
         <>
           {/* <h1>Accounts</h1> */}
           <Nav active="accounts" />
-          <AddAccount></AddAccount>
+          <AddAccountDialog></AddAccountDialog>
           <AccountList accounts_p={users} />
         </>
       ) : (
