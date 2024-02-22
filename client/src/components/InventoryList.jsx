@@ -104,7 +104,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
-
+  
   return (
     <TableHead>
       <TableRow>
@@ -146,7 +146,8 @@ function EnhancedTableHead(props) {
             )}
           </TableCell>
         ))}
-        <TableCell align="right" />
+        {/* Add the "Set URL" column header */}
+        <TableCell align="right">Set URL</TableCell>
       </TableRow>
     </TableHead>
   );
@@ -292,9 +293,45 @@ export default function EnhancedTable({ items }) {
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
-  const [currentItem, setCurrentItem] = React.useState(null);
   const [updateItemLoading, setUpdateItemLoading] = React.useState(false);
   const [filteredItems, setFilteredItems] = React.useState(inventoryItems);
+  const [urlDialogOpen, setUrlDialogOpen] = React.useState(false);
+  const [url, setUrl] = React.useState("");
+  const [currentItem, setCurrentItem] = React.useState(null);
+  const [qrCodeString, setQRCodeString] = React.useState("");
+
+
+  const handleSetUrlClick = (item) => {
+    console.log("Set URL button clicked for item:", item);
+    setCurrentItem(item);
+    setUrlDialogOpen(true);
+    setUrl(item.url || ""); // Set the URL input with the current item's URL
+  };
+
+  const handleUrlDialogClose = () => {
+    setUrlDialogOpen(false);
+  };
+
+  const handleUrlUpdate = () => {
+    // Check if there is a current item set
+    if (currentItem) {
+      setCurrentItem((prevItem) => ({
+        ...prevItem,
+        url: url,
+      }));
+
+      // Update the QR code with the latest URL
+      const updatedQRCode = <QRCode value={JSON.stringify({ url: url })} />;
+      setQrcodes((prevQrcodes) => ({
+        ...prevQrcodes,
+        [currentItem._id]: updatedQRCode,
+      }));
+    }
+
+    // Close the URL dialog
+    handleUrlDialogClose();
+  };
+
 
   React.useEffect(() => {
     setInventoryItems(items);
@@ -308,23 +345,34 @@ export default function EnhancedTable({ items }) {
     // Generate QR codes for all items
     const qrCodeData = {};
     inventoryItems.forEach((item) => {
-      qrCodeData[item._id] = generateQRCode(item);
+      // Check if the item has an associated QR code in the state
+      const hasExistingQRCode = item._id in qrcodes && qrcodes[item._id];
+  
+      // Check if the URL has changed for the item
+      const urlChanged =
+        hasExistingQRCode &&
+        item.url !== hasExistingQRCode.props.value.url;
+  
+      if (!urlChanged && hasExistingQRCode) {
+        // If the URL hasn't changed and there's an existing QR code, use it
+        qrCodeData[item._id] = hasExistingQRCode;
+      } else {
+        // If the URL has changed or there's no existing QR code, generate a new QR code
+        qrCodeData[item._id] = generateQRCode(item);
+      }
     });
     setQrcodes(qrCodeData);
-  }, [inventoryItems]);
+  }, [inventoryItems, qrcodes]);
 
   const generateQRCode = (item) => {
     const qrCodeData = {
-      department: item.department,
-      _id: item._id,
-      name: item.name,
-      description: item.description,
-      quantity: item.quantity,
+      url: item.url ? item.url : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     };
 
     const qrCodeString = JSON.stringify(qrCodeData);
     return <QRCode value={qrCodeString} />;
   };
+
 
   const handleAddItem = async () => {
     const newItemObject = {
@@ -616,6 +664,7 @@ export default function EnhancedTable({ items }) {
                               mt={1}
                             >
                               <Box mb={1}>{qrcodes[row._id]}</Box>
+                              <Button onClick={() => handleSetUrlClick(row)}>Set URL</Button>
                               <button onClick={() => handleDialogOpen(row)}>
                                 <img
                                   src={edit}
@@ -624,7 +673,7 @@ export default function EnhancedTable({ items }) {
                                 />
                               </button>
                             </Box>
-                          </Collapse>
+                                                      </Collapse>
                         </TableCell>
                       </TableRow>
                     </>
@@ -654,7 +703,7 @@ export default function EnhancedTable({ items }) {
         </Paper>
       </Box>
       <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Edit Item</DialogTitle>
+      <DialogTitle>Edit Item</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -718,6 +767,26 @@ export default function EnhancedTable({ items }) {
               <Button onClick={handleDialogUpdate}>Update</Button>
             </>
           )}
+        </DialogActions>
+      </Dialog>
+      <Dialog open={urlDialogOpen} onClose={handleUrlDialogClose}>
+        <DialogTitle>Set URL</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="url"
+            label="URL"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleUrlDialogClose}>Cancel</Button>
+          <Button onClick={handleUrlUpdate}>Update URL</Button>
         </DialogActions>
       </Dialog>
     </div>
