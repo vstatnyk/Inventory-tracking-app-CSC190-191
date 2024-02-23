@@ -1,7 +1,20 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { CircularProgress, InputAdornment } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+// import CircularProgress from "@mui/material/CircularProgress";
+import Collapse from "@mui/material/Collapse";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -10,30 +23,21 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { visuallyHidden } from "@mui/utils";
-import Collapse from "@mui/material/Collapse";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import QRCode from "qrcode.react";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { alpha } from "@mui/material/styles";
+import { visuallyHidden } from "@mui/utils";
 import Fuse from "fuse.js";
+import PropTypes from "prop-types";
+import QRCode from "qrcode.react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
-import { CircularProgress, InputAdornment } from "@mui/material";
+import AlertPopUp from "./AlertPopUp";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -104,7 +108,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
-  
+
   return (
     <TableHead>
       <TableRow>
@@ -178,18 +182,18 @@ function EnhancedTableToolbar(props) {
   const handleDeleteItem = async () => {
     const itemsToDelete = [...selected]; // Copy selected items
     setSelected([]); // Clear selection immediately
-  
+
     for (const item of itemsToDelete) {
       await deleteItem(item, localStorage.getItem("token"));
     }
-  
+
     // Filter out deleted items
     const updatedItems = inventoryItems.filter(
       (item) => !itemsToDelete.includes(item._id)
     );
-  
+
     setInventoryItems(updatedItems);
-  
+
     // Remove QR codes for the deleted items
     setQrcodes((prevQrcodes) => {
       const newQrcodes = { ...prevQrcodes };
@@ -298,8 +302,18 @@ export default function EnhancedTable({ items }) {
   const [urlDialogOpen, setUrlDialogOpen] = React.useState(false);
   const [url, setUrl] = React.useState("");
   const [currentItem, setCurrentItem] = React.useState(null);
-  const [qrCodeString, setQRCodeString] = React.useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [alert, setAlert] = useState([]);
+  const [loading, setLoading] = React.useState(false);
 
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3500);
+    }
+  }, [showAlert]);
+  // const [qrCodeString, setQRCodeString] = React.useState("");
 
   const handleSetUrlClick = (item) => {
     console.log("Set URL button clicked for item:", item);
@@ -313,6 +327,7 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleUrlUpdate = () => {
+    setLoading(true);
     // Check if there is a current item set
     if (currentItem) {
       setCurrentItem((prevItem) => ({
@@ -326,15 +341,17 @@ export default function EnhancedTable({ items }) {
         ...prevQrcodes,
         [currentItem._id]: updatedQRCode,
       }));
+      setAlert(["Success", "success"]);
+      setShowAlert(true);
     }
-
+    setLoading(false);
     // Close the URL dialog
     handleUrlDialogClose();
   };
 
-
   React.useEffect(() => {
     setInventoryItems(items);
+    console.log("Items:", items);
   }, [items]);
 
   React.useEffect(() => {
@@ -347,34 +364,33 @@ export default function EnhancedTable({ items }) {
     inventoryItems.forEach((item) => {
       // Check if the item has an associated QR code in the state
       const hasExistingQRCode = item._id in qrcodes && qrcodes[item._id];
-  
+
       // Check if the URL has changed for the item
       const urlChanged =
-        hasExistingQRCode &&
-        item.url !== hasExistingQRCode.props.value.url;
-  
+        hasExistingQRCode && item.url !== hasExistingQRCode.props.value.url;
+
       if (!urlChanged && hasExistingQRCode) {
         // If the URL hasn't changed and there's an existing QR code, use it
         qrCodeData[item._id] = hasExistingQRCode;
       } else {
         // If the URL has changed or there's no existing QR code, generate a new QR code
-        qrCodeData[item._id] = generateQRCode(item);
+        qrCodeData[item._id] = generateQRCode(item, String(item._id));
       }
     });
     setQrcodes(qrCodeData);
   }, [inventoryItems, qrcodes]);
 
-  const generateQRCode = (item) => {
+  const generateQRCode = (item, id) => {
     const qrCodeData = {
-      url: item.url ? item.url : 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      url: item.url ? item.url : "http://localhost:5173/checkinout/" + id,
     };
 
     const qrCodeString = JSON.stringify(qrCodeData);
     return <QRCode value={qrCodeString} />;
   };
 
-
   const handleAddItem = async () => {
+    setLoading(true);
     const newItemObject = {
       name: "New Item",
       description: "This is a new item",
@@ -389,14 +405,18 @@ export default function EnhancedTable({ items }) {
       newItemObject.department,
       localStorage.getItem("token")
     );
+    console.log("New item:", newItem._id);
 
     setInventoryItems((prevItems) => [...prevItems, newItem]);
 
     // Generate QR code for the new item
     setQrcodes((prevQrcodes) => ({
       ...prevQrcodes,
-      [newItem._id]: generateQRCode(newItem),
+      [newItem._id]: generateQRCode(newItem, String(newItem._id)),
     }));
+    setAlert(["Success", "success"]);
+    setLoading(false);
+    setShowAlert(true);
   };
 
   const handleDialogOpen = (item) => {
@@ -408,6 +428,7 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleDialogUpdate = async () => {
+    setLoading(true);
     setUpdateItemLoading(true);
     try {
       await updateItem(
@@ -428,11 +449,16 @@ export default function EnhancedTable({ items }) {
 
       setInventoryItems(newInventoryItems);
       handleDialogClose();
+      setAlert(["Success", "success"]);
+      setShowAlert(true);
     } catch (error) {
+      setAlert(["Error updating item: " + error, "error"]);
+      setShowAlert(true);
       console.error("Error updating item:", error);
     } finally {
       setUpdateItemLoading(false);
     }
+    setLoading(false);
   };
 
   const handleExportClick = () => {
@@ -569,7 +595,22 @@ export default function EnhancedTable({ items }) {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: 'center', marginBottom: "5px" }}>
+      {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
+      {loading && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={open}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "5px",
+        }}
+      >
         <button onClick={handleAddItem}>Add Item</button>
         <button onClick={handleExportClick}>Generate Report</button>
       </div>
@@ -664,7 +705,9 @@ export default function EnhancedTable({ items }) {
                               mt={1}
                             >
                               <Box mb={1}>{qrcodes[row._id]}</Box>
-                              <Button onClick={() => handleSetUrlClick(row)}>Set URL</Button>
+                              <Button onClick={() => handleSetUrlClick(row)}>
+                                Set URL
+                              </Button>
                               <button onClick={() => handleDialogOpen(row)}>
                                 <img
                                   src={edit}
@@ -673,7 +716,7 @@ export default function EnhancedTable({ items }) {
                                 />
                               </button>
                             </Box>
-                                                      </Collapse>
+                          </Collapse>
                         </TableCell>
                       </TableRow>
                     </>
@@ -703,7 +746,7 @@ export default function EnhancedTable({ items }) {
         </Paper>
       </Box>
       <Dialog open={openDialog} onClose={handleDialogClose}>
-      <DialogTitle>Edit Item</DialogTitle>
+        <DialogTitle>Edit Item</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus

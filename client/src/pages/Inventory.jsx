@@ -35,10 +35,9 @@ export default function Inventory() {
     <>
       {CheckLoginStatus() === true ? (
         <>
-          {/* <h1>Inventory</h1> */}
           <Nav active="inventory" />
           <FilterMenu onFilterSubmit={handleFilterSubmit} />
-          <InventoryList items={items}/>
+          <InventoryList classname="InventoryList" items={items} />
         </>
       ) : (
         <></> // CheckLoginStatus() false
