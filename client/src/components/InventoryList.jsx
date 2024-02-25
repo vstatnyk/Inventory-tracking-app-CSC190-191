@@ -204,21 +204,6 @@ function EnhancedTableToolbar(props) {
     });
   };
 
-  const fuse = new Fuse(inventoryItems, {
-    keys: ["name"], // Add the keys you want to include in the search
-    threshold: 0.3, // Adjust the threshold according to your needs
-  });
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    if (e.target.value) {
-      const result = fuse.search(e.target.value);
-      setFilteredItems(result.map(({ item }) => item));
-    } else {
-      setFilteredItems(inventoryItems);
-    }
-  };
-
   return (
     <Toolbar
       sx={{
@@ -257,22 +242,8 @@ function EnhancedTableToolbar(props) {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <TextField
-            value={searchTerm}
-            onChange={handleSearchChange}
-            label="Filter By Name"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FilterListIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Tooltip>
-      )}
+      ) : null
+      }
     </Toolbar>
   );
 }
@@ -305,6 +276,23 @@ export default function EnhancedTable({ items }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const fuse = new Fuse(inventoryItems, {
+    keys: ["name"], // Add the keys you want to include in the search
+    threshold: 0.3, // Adjust the threshold according to your needs
+  });
+
+ // Handle search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    if (e.target.value) {
+      const result = fuse.search(e.target.value);
+      setFilteredItems(result.map(({ item }) => item));
+    } else {
+      setFilteredItems(inventoryItems);
+    }
+  };
 
   useEffect(() => {
     if (showAlert) {
@@ -594,244 +582,256 @@ export default function EnhancedTable({ items }) {
   );
 
   return (
-    <div>
-      {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
-      {loading && (
-        <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={open}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      )}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "5px",
-        }}
-      >
-        <button onClick={handleAddItem}>Add Item</button>
-        <button onClick={handleExportClick}>Generate Report</button>
+    <div style={{ display: "flex" }}>
+      {/* Sidebar */}
+      <div style={{ width: "10%", padding: "20px", display: "flex", flexDirection: "column" }}>
+        <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
+          <button onClick={handleAddItem}>Add Item</button>
+          <button onClick={handleExportClick}>Generate Report</button>
+        </div>
+        <TextField
+          value={searchTerm}
+          onChange={handleSearchChange}
+          label="Filter By Name"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FilterListIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </div>
-      <Box sx={{ width: "100%" }}>
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <EnhancedTableToolbar
-            numSelected={selected.length}
-            selected={selected}
-            inventoryItems={inventoryItems}
-            setInventoryItems={setInventoryItems}
-            setQrcodes={setQrcodes}
-            setFilteredItems={setFilteredItems}
-            setSelected={setSelected}
-          />
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size="small"
-            >
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={inventoryItems.length}
-              />
-              <TableBody>
-                {visibleRows.map((row, index) => {
-                  const isItemSelected = isSelected(row._id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  const isOpen = openRows[row._id];
-
-                  return (
-                    <>
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row._id)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={row._id}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
+  
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
+        {loading && (
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={open}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        )}
+        <Box sx={{ width: "100%" }}>
+          <Paper sx={{ width: "100%", mb: 2 }}>
+            <EnhancedTableToolbar
+              numSelected={selected.length}
+              selected={selected}
+              inventoryItems={inventoryItems}
+              setInventoryItems={setInventoryItems}
+              setQrcodes={setQrcodes}
+              setFilteredItems={setFilteredItems}
+              setSelected={setSelected}
+            />
+            <TableContainer>
+              <Table
+                sx={{ minWidth: 750 }}
+                aria-labelledby="tableTitle"
+                size="small"
+              >
+                <EnhancedTableHead
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={inventoryItems.length}
+                />
+                <TableBody>
+                  {visibleRows.map((row, index) => {
+                    const isItemSelected = isSelected(row._id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    const isOpen = openRows[row._id];
+  
+                    return (
+                      <>
+                        <TableRow
+                          hover
+                          onClick={(event) => handleClick(event, row._id)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={row._id}
+                          selected={isItemSelected}
+                          sx={{ cursor: "pointer" }}
                         >
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.quantity}</TableCell>
-                        <TableCell align="right">{row.department}</TableCell>
-                        <TableCell align="right">{row.description}</TableCell>
-                        <TableCell align="right" style={{ width: "10%" }}>
-                          <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={(event) => handleRowClick(event, row._id)}
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              inputProps={{
+                                "aria-labelledby": labelId,
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
                           >
-                            {isOpen ? (
-                              <KeyboardArrowUpIcon />
-                            ) : (
-                              <KeyboardArrowDownIcon />
-                            )}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell
-                          style={{ paddingBottom: 0, paddingTop: 0 }}
-                          colSpan={6}
-                        >
-                          <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                            <Box
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              flexDirection="column"
-                              mt={1}
+                            {row.name}
+                          </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">{row.department}</TableCell>
+                          <TableCell align="right">{row.description}</TableCell>
+                          <TableCell align="right" style={{ width: "10%" }}>
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={(event) => handleRowClick(event, row._id)}
                             >
-                              <Box mb={1}>{qrcodes[row._id]}</Box>
-                              <Button onClick={() => handleSetUrlClick(row)}>
-                                Set URL
-                              </Button>
-                              <button onClick={() => handleDialogOpen(row)}>
-                                <img
-                                  src={edit}
-                                  alt="Edit Item"
-                                  className="image"
-                                />
-                              </button>
-                            </Box>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  );
-                })}
-                {emptyRows > 0 && (
-                  <TableRow
-                    style={{
-                      height: 33 * emptyRows,
-                    }}
-                  >
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={inventoryItems.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.name}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, name: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="quantity"
-            label="Quantity"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.quantity}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, quantity: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="department"
-            label="Department"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.department}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, department: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="description"
-            label="Description"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.description}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, description: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          {updateItemLoading ? (
-            <CircularProgress size={50} />
-          ) : (
-            <>
-              <Button onClick={handleDialogClose}>Cancel</Button>
-              <Button onClick={handleDialogUpdate}>Update</Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
-      <Dialog open={urlDialogOpen} onClose={handleUrlDialogClose}>
-        <DialogTitle>Set URL</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="url"
-            label="URL"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleUrlDialogClose}>Cancel</Button>
-          <Button onClick={handleUrlUpdate}>Update URL</Button>
-        </DialogActions>
-      </Dialog>
+                              {isOpen ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            style={{ paddingBottom: 0, paddingTop: 0 }}
+                            colSpan={6}
+                          >
+                            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                              <Box
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                flexDirection="column"
+                                mt={1}
+                              >
+                                <Box mb={1}>{qrcodes[row._id]}</Box>
+                                <Button onClick={() => handleSetUrlClick(row)}>
+                                  Set URL
+                                </Button>
+                                <button onClick={() => handleDialogOpen(row)}>
+                                  <img
+                                    src={edit}
+                                    alt="Edit Item"
+                                    className="image"
+                                  />
+                                </button>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    );
+                  })}
+                  {emptyRows > 0 && (
+                    <TableRow
+                      style={{
+                        height: 33 * emptyRows,
+                      }}
+                    >
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={inventoryItems.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </Box>
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.name}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, name: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="quantity"
+              label="Quantity"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.quantity}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, quantity: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="department"
+              label="Department"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.department}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, department: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="description"
+              label="Description"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.description}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, description: e.target.value })
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            {updateItemLoading ? (
+              <CircularProgress size={50} />
+            ) : (
+              <>
+                <Button onClick={handleDialogClose}>Cancel</Button>
+                <Button onClick={handleDialogUpdate}>Update</Button>
+              </>
+            )}
+          </DialogActions>
+        </Dialog>
+        <Dialog open={urlDialogOpen} onClose={handleUrlDialogClose}>
+          <DialogTitle>Set URL</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="url"
+              label="URL"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleUrlDialogClose}>Cancel</Button>
+            <Button onClick={handleUrlUpdate}>Update URL</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </div>
   );
 }

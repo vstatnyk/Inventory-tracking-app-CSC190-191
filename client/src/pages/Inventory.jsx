@@ -27,16 +27,11 @@ export default function Inventory() {
     fetchItems();
   }, [filterCriteria]);
 
-  const handleFilterSubmit = (criteria) => {
-    setFilterCriteria(criteria);
-  };
-
   return (
     <>
       {CheckLoginStatus() === true ? (
         <>
           <Nav active="inventory" />
-          <FilterMenu onFilterSubmit={handleFilterSubmit} />
           <InventoryList classname="InventoryList" items={items} />
         </>
       ) : (
