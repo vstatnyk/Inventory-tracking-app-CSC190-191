@@ -4,11 +4,7 @@ const imageSchema = new mongoose.Schema({
     img_id: Number,
     name: String,
     description: String,
-    img:
-    {
-        data: Buffer,
-        contentType: String
-    }
+    url: String // for storing URL
 });
  
 module.exports = mongoose.model('Image', imageSchema);

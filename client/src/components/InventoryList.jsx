@@ -34,6 +34,7 @@ import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import { CircularProgress, InputAdornment } from "@mui/material";
+import { imagePaths } from "../functions/imageConfig";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -582,9 +583,21 @@ export default function EnhancedTable({ items }) {
                           id={labelId}
                           scope="row"
                           padding="none"
+                          style={{ display: 'flex', alignItems: 'center' }}
                         >
+                          <div style={{ marginRight: 'auto' }}>
                           {row.name}
-                        </TableCell>
+                          </div>
+                          
+                          <div>
+                            <img
+                              src={imagePaths['1234.png']} // placeholder image
+                              alt="Item Image"
+                              className="image"
+                              style={{ maxWidth: '20%', maxHeight: '20%', width: 'auto', height: 'auto' }}
+                            />
+                          </div>
+                        </TableCell>                     
                         <TableCell align="right">{row.quantity}</TableCell>
                         <TableCell align="right">{row.department}</TableCell>
                         <TableCell align="right">{row.description}</TableCell>
@@ -607,24 +620,42 @@ export default function EnhancedTable({ items }) {
                           style={{ paddingBottom: 0, paddingTop: 0 }}
                           colSpan={6}
                         >
-                          <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                            <Box
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              flexDirection="column"
-                              mt={1}
-                            >
-                              <Box mb={1}>{qrcodes[row._id]}</Box>
-                              <button onClick={() => handleDialogOpen(row)}>
-                                <img
-                                  src={edit}
-                                  alt="Edit Item"
-                                  className="image"
-                                />
-                              </button>
-                            </Box>
-                          </Collapse>
+                        <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                        <Box
+                        display="flex"
+                        justifyContent="space-evenly"
+                        alignItems="center"
+                        flexDirection="row"
+                        mt={2}
+                      >
+                        <Box>
+                          <img
+                            src={imagePaths['5678.png']} // placeholder image
+                            alt="Item Image"
+                            className="image"
+                            style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
+                          />
+                        </Box>
+                        <Box
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        >
+                        <Box>
+                          {qrcodes[row._id]}
+                        </Box>
+                        <Box mt={2}>
+                          <button onClick={() => handleDialogOpen(row)}>
+                            <img
+                              src={edit}
+                              alt="Edit Item"
+                              className="image"
+                            />
+                          </button>
+                        </Box>
+                      </Box>
+                      </Box>
+                        </Collapse>
                         </TableCell>
                       </TableRow>
                     </>
