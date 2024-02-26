@@ -2,7 +2,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { CircularProgress, InputAdornment } from "@mui/material";
+import { CircularProgress, DialogContentText, InputAdornment } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -177,7 +177,16 @@ function EnhancedTableToolbar(props) {
     setSelected,
   } = props;
 
+  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+  
+  const handleDeleteDialogOpen = () => {
+    setOpenDeleteDialog(true);
+  }
+
+  const handleDeleteDialogClose = () => {
+    setOpenDeleteDialog(false);
+  }
 
   const handleDeleteItem = async () => {
     const itemsToDelete = [...selected]; // Copy selected items
@@ -202,6 +211,8 @@ function EnhancedTableToolbar(props) {
       });
       return newQrcodes;
     });
+
+    handleDeleteDialogClose();
   };
 
   return (
@@ -238,12 +249,27 @@ function EnhancedTableToolbar(props) {
 
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton onClick={handleDeleteItem}>
+          <IconButton onClick={handleDeleteDialogOpen}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       ) : null
       }
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+          Are you sure you want to delete?
+        </DialogTitle>
+        <center>
+          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+            <button onClick={handleDeleteItem} color="primary" autoFocus>
+              Confirm
+            </button>
+            <button onClick={handleDeleteDialogClose} color="primary">
+              Cancel
+            </button>
+          </DialogActions>
+        </center>
+      </Dialog>
     </Toolbar>
   );
 }
