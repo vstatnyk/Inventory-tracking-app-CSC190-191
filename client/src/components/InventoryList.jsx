@@ -268,6 +268,7 @@ export default function EnhancedTable({ items }) {
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [openAddDialog, setOpenAddDialog] = React.useState(false);
   const [updateItemLoading, setUpdateItemLoading] = React.useState(false);
   const [filteredItems, setFilteredItems] = React.useState(inventoryItems);
   const [urlDialogOpen, setUrlDialogOpen] = React.useState(false);
@@ -277,6 +278,12 @@ export default function EnhancedTable({ items }) {
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [formData, setFormData] = useState({
+    name: '',
+    quantity: '',
+    department: '',
+    description: ''
+  });
 
   const fuse = new Fuse(inventoryItems, {
     keys: ["name"], // Add the keys you want to include in the search
@@ -377,20 +384,22 @@ export default function EnhancedTable({ items }) {
     return <QRCode value={qrCodeString} />;
   };
 
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const handleAddItem = async () => {
     setLoading(true);
-    const newItemObject = {
-      name: "New Item",
-      description: "This is a new item",
-      quantity: 10,
-      department: ["New Department"],
-    };
 
     const newItem = await createItem(
-      newItemObject.name,
-      newItemObject.description,
-      newItemObject.quantity,
-      newItemObject.department,
+      formData.name,
+      formData.description,
+      formData.quantity,
+      formData.department,
       localStorage.getItem("token")
     );
     console.log("New item:", newItem._id);
@@ -405,7 +414,16 @@ export default function EnhancedTable({ items }) {
     setAlert(["Success", "success"]);
     setLoading(false);
     setShowAlert(true);
+    handleAddDialogClose();
   };
+
+  const handleAddDialogOpen = () => {
+    setOpenAddDialog(true);
+  }
+
+  const handleAddDialogClose = () => {
+    setOpenAddDialog(false);
+  }
 
   const handleDialogOpen = (item) => {
     setCurrentItem(item);
@@ -450,6 +468,7 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleExportClick = () => {
+    
     if (!inventoryItems || inventoryItems.length === 0) {
       alert("No inventory items to export.");
       return;
@@ -586,7 +605,8 @@ export default function EnhancedTable({ items }) {
       {/* Sidebar */}
       <div style={{ width: "10%", padding: "20px", display: "flex", flexDirection: "column" }}>
         <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-          <button onClick={handleAddItem}>Add Item</button>
+          
+          <button onClick={() => handleAddDialogOpen()}>Add Item</button>
           <button onClick={handleExportClick}>Generate Report</button>
         </div>
         <TextField
@@ -830,6 +850,95 @@ export default function EnhancedTable({ items }) {
             <Button onClick={handleUrlDialogClose}>Cancel</Button>
             <Button onClick={handleUrlUpdate}>Update URL</Button>
           </DialogActions>
+        </Dialog>
+        <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+            Add Item
+          </DialogTitle>
+          <DialogContent>
+          <TextField
+              autoFocus
+              margin="dense"
+              label="Name"
+              variant="outlined"
+              color="primary"
+              type="text"
+              fullWidth
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Quantity"
+              variant="outlined"
+              color="primary"
+              type="text"
+              fullWidth
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Department"
+              variant="outlined"
+              color="primary"
+              type="text"
+              fullWidth
+              id="department"
+              name="department"
+              value={formData.department}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Description"
+              variant="outlined"
+              color="primary"
+              type="text"
+              fullWidth
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}
+            />
+          </DialogContent>
+          <center>
+            <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+              <button onClick={handleAddItem} color="primary" autoFocus>
+                OK
+              </button>
+              <button onClick={handleAddDialogClose} color="primary">
+                Cancel
+              </button>
+            </DialogActions>
+          </center>
         </Dialog>
       </div>
     </div>
