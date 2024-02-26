@@ -1,7 +1,20 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import { alpha } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { CircularProgress, InputAdornment } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+// import CircularProgress from "@mui/material/CircularProgress";
+import Collapse from "@mui/material/Collapse";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import IconButton from "@mui/material/IconButton";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -10,31 +23,22 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import Checkbox from "@mui/material/Checkbox";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import { visuallyHidden } from "@mui/utils";
-import Collapse from "@mui/material/Collapse";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import QRCode from "qrcode.react";
+import Toolbar from "@mui/material/Toolbar";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { alpha } from "@mui/material/styles";
+import { visuallyHidden } from "@mui/utils";
 import Fuse from "fuse.js";
+import PropTypes from "prop-types";
+import QRCode from "qrcode.react";
+import * as React from "react";
+import { useEffect, useState } from "react";
 import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
-import { CircularProgress, InputAdornment } from "@mui/material";
-import { imagePaths } from "../functions/imageConfig";
+import AlertPopUp from "./AlertPopUp";
+import jsPDF from "jspdf";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -147,7 +151,8 @@ function EnhancedTableHead(props) {
             )}
           </TableCell>
         ))}
-        <TableCell align="right" />
+        {/* Add the "Set URL" column header */}
+        <TableCell align="right">Set URL</TableCell>
       </TableRow>
     </TableHead>
   );
@@ -178,18 +183,18 @@ function EnhancedTableToolbar(props) {
   const handleDeleteItem = async () => {
     const itemsToDelete = [...selected]; // Copy selected items
     setSelected([]); // Clear selection immediately
-  
+
     for (const item of itemsToDelete) {
       await deleteItem(item, localStorage.getItem("token"));
     }
-  
+
     // Filter out deleted items
     const updatedItems = inventoryItems.filter(
       (item) => !itemsToDelete.includes(item._id)
     );
-  
+
     setInventoryItems(updatedItems);
-  
+
     // Remove QR codes for the deleted items
     setQrcodes((prevQrcodes) => {
       const newQrcodes = { ...prevQrcodes };
@@ -198,21 +203,6 @@ function EnhancedTableToolbar(props) {
       });
       return newQrcodes;
     });
-  };
-
-  const fuse = new Fuse(inventoryItems, {
-    keys: ["name"], // Add the keys you want to include in the search
-    threshold: 0.3, // Adjust the threshold according to your needs
-  });
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    if (e.target.value) {
-      const result = fuse.search(e.target.value);
-      setFilteredItems(result.map(({ item }) => item));
-    } else {
-      setFilteredItems(inventoryItems);
-    }
   };
 
   return (
@@ -253,22 +243,8 @@ function EnhancedTableToolbar(props) {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <TextField
-            value={searchTerm}
-            onChange={handleSearchChange}
-            label="Filter By Name"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <FilterListIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Tooltip>
-      )}
+      ) : null
+      }
     </Toolbar>
   );
 }
@@ -293,12 +269,78 @@ export default function EnhancedTable({ items }) {
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
-  const [currentItem, setCurrentItem] = React.useState(null);
   const [updateItemLoading, setUpdateItemLoading] = React.useState(false);
   const [filteredItems, setFilteredItems] = React.useState(inventoryItems);
+  const [urlDialogOpen, setUrlDialogOpen] = React.useState(false);
+  const [url, setUrl] = React.useState("");
+  const [currentItem, setCurrentItem] = React.useState(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alert, setAlert] = useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const fuse = new Fuse(inventoryItems, {
+    keys: ["name"], // Add the keys you want to include in the search
+    threshold: 0.3, // Adjust the threshold according to your needs
+  });
+
+ // Handle search change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    if (e.target.value) {
+      const result = fuse.search(e.target.value);
+      setFilteredItems(result.map(({ item }) => item));
+    } else {
+      setFilteredItems(inventoryItems);
+    }
+  };
+
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3500);
+    }
+  }, [showAlert]);
+  // const [qrCodeString, setQRCodeString] = React.useState("");
+
+  const handleSetUrlClick = (item) => {
+    console.log("Set URL button clicked for item:", item);
+    setCurrentItem(item);
+    setUrlDialogOpen(true);
+    setUrl(item.url || ""); // Set the URL input with the current item's URL
+  };
+
+  const handleUrlDialogClose = () => {
+    setUrlDialogOpen(false);
+  };
+
+  const handleUrlUpdate = () => {
+    setLoading(true);
+    // Check if there is a current item set
+    if (currentItem) {
+      setCurrentItem((prevItem) => ({
+        ...prevItem,
+        url: url,
+      }));
+
+      // Update the QR code with the latest URL
+      const updatedQRCode = <QRCode value={JSON.stringify({ url: url })} />;
+      setQrcodes((prevQrcodes) => ({
+        ...prevQrcodes,
+        [currentItem._id]: updatedQRCode,
+      }));
+      setAlert(["Success", "success"]);
+      setShowAlert(true);
+    }
+    setLoading(false);
+    // Close the URL dialog
+    handleUrlDialogClose();
+  };
 
   React.useEffect(() => {
     setInventoryItems(items);
+    console.log("Items:", items);
   }, [items]);
 
   React.useEffect(() => {
@@ -309,25 +351,72 @@ export default function EnhancedTable({ items }) {
     // Generate QR codes for all items
     const qrCodeData = {};
     inventoryItems.forEach((item) => {
-      qrCodeData[item._id] = generateQRCode(item);
+      // Check if the item has an associated QR code in the state
+      const hasExistingQRCode = item._id in qrcodes && qrcodes[item._id];
+
+      // Check if the URL has changed for the item
+      const urlChanged =
+        hasExistingQRCode && item.url !== hasExistingQRCode.props.value.url;
+
+      if (!urlChanged && hasExistingQRCode) {
+        // If the URL hasn't changed and there's an existing QR code, use it
+        qrCodeData[item._id] = hasExistingQRCode;
+      } else {
+        // If the URL has changed or there's no existing QR code, generate a new QR code
+        qrCodeData[item._id] = generateQRCode(item, String(item._id));
+      }
     });
     setQrcodes(qrCodeData);
-  }, [inventoryItems]);
+  }, [inventoryItems, qrcodes]);
 
-  const generateQRCode = (item) => {
+  const generateQRCode = (item, id) => {
     const qrCodeData = {
-      department: item.department,
-      _id: item._id,
-      name: item.name,
-      description: item.description,
-      quantity: item.quantity,
+      url: item.url ? item.url : `http://localhost:5173/checkinout/${id}`,
     };
-
+  
     const qrCodeString = JSON.stringify(qrCodeData);
     return <QRCode value={qrCodeString} />;
   };
 
+  const handleDownloadQRCode = (item) => {
+    const qrCodeSvg = generateQRCode(item, item._id);
+    const dataUrl = qrCodeSvg.toDataURL("image/png");
+  
+    // Trigger download
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = `qrcode_${item.name}.png`;
+    link.click();
+  };
+
+  const handlePrintQRCode = (item) => {
+    const qrCodeSvg = generateQRCode(item, item._id);
+  
+    // Create a new window with the QR code
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print QR Code</title>
+        </head>
+        <body>
+          ${qrCodeSvg.outerHTML}
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              }
+            };
+          </script>
+        </body>
+      </html>
+    `);
+  };
+  
+
   const handleAddItem = async () => {
+    setLoading(true);
     const newItemObject = {
       name: "New Item",
       description: "This is a new item",
@@ -342,14 +431,18 @@ export default function EnhancedTable({ items }) {
       newItemObject.department,
       localStorage.getItem("token")
     );
+    console.log("New item:", newItem._id);
 
     setInventoryItems((prevItems) => [...prevItems, newItem]);
 
     // Generate QR code for the new item
     setQrcodes((prevQrcodes) => ({
       ...prevQrcodes,
-      [newItem._id]: generateQRCode(newItem),
+      [newItem._id]: generateQRCode(newItem, String(newItem._id)),
     }));
+    setAlert(["Success", "success"]);
+    setLoading(false);
+    setShowAlert(true);
   };
 
   const handleDialogOpen = (item) => {
@@ -361,6 +454,7 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleDialogUpdate = async () => {
+    setLoading(true);
     setUpdateItemLoading(true);
     try {
       await updateItem(
@@ -381,11 +475,16 @@ export default function EnhancedTable({ items }) {
 
       setInventoryItems(newInventoryItems);
       handleDialogClose();
+      setAlert(["Success", "success"]);
+      setShowAlert(true);
     } catch (error) {
+      setAlert(["Error updating item: " + error, "error"]);
+      setShowAlert(true);
       console.error("Error updating item:", error);
     } finally {
       setUpdateItemLoading(false);
     }
+    setLoading(false);
   };
 
   const handleExportClick = () => {
@@ -521,236 +620,256 @@ export default function EnhancedTable({ items }) {
   );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: 'center', marginBottom: "5px" }}>
-        <button onClick={handleAddItem}>Add Item</button>
-        <button onClick={handleExportClick}>Generate Report</button>
+    <div style={{ display: "flex" }}>
+      {/* Sidebar */}
+      <div style={{ width: "10%", padding: "20px", display: "flex", flexDirection: "column" }}>
+        <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
+          <button onClick={handleAddItem}>Add Item</button>
+          <button onClick={handleExportClick}>Generate Report</button>  
+        </div>
+        <TextField
+          value={searchTerm}
+          onChange={handleSearchChange}
+          label="Filter By Name"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FilterListIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </div>
-      <Box sx={{ width: "100%" }}>
-        <Paper sx={{ width: "100%", mb: 2 }}>
-          <EnhancedTableToolbar
-            numSelected={selected.length}
-            selected={selected}
-            inventoryItems={inventoryItems}
-            setInventoryItems={setInventoryItems}
-            setQrcodes={setQrcodes}
-            setFilteredItems={setFilteredItems}
-            setSelected={setSelected}
-          />
-          <TableContainer>
-            <Table
-              sx={{ minWidth: 750 }}
-              aria-labelledby="tableTitle"
-              size="small"
-            >
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={inventoryItems.length}
-              />
-              <TableBody>
-                {visibleRows.map((row, index) => {
-                  const isItemSelected = isSelected(row._id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  const isOpen = openRows[row._id];
-
-                  return (
-                    <>
-                      <TableRow
-                        hover
-                        onClick={(event) => handleClick(event, row._id)}
-                        role="checkbox"
-                        aria-checked={isItemSelected}
-                        tabIndex={-1}
-                        key={row._id}
-                        selected={isItemSelected}
-                        sx={{ cursor: "pointer" }}
-                      >
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            inputProps={{
-                              "aria-labelledby": labelId,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                          style={{ display: 'flex', alignItems: 'center' }}
+  
+      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
+        {loading && (
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={open}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        )}
+        <Box sx={{ width: "100%" }}>
+          <Paper sx={{ width: "100%", mb: 2 }}>
+            <EnhancedTableToolbar
+              numSelected={selected.length}
+              selected={selected}
+              inventoryItems={inventoryItems}
+              setInventoryItems={setInventoryItems}
+              setQrcodes={setQrcodes}
+              setFilteredItems={setFilteredItems}
+              setSelected={setSelected}
+            />
+            <TableContainer>
+              <Table
+                sx={{ minWidth: 750 }}
+                aria-labelledby="tableTitle"
+                size="small"
+              >
+                <EnhancedTableHead
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={inventoryItems.length}
+                />
+                <TableBody>
+                  {visibleRows.map((row, index) => {
+                    const isItemSelected = isSelected(row._id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    const isOpen = openRows[row._id];
+  
+                    return (
+                      <>
+                        <TableRow
+                          hover
+                          onClick={(event) => handleClick(event, row._id)}
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={row._id}
+                          selected={isItemSelected}
+                          sx={{ cursor: "pointer" }}
                         >
-                          <div style={{ marginRight: 'auto' }}>
-                          {row.name}
-                          </div>
-                          
-                          <div>
-                            <img
-                              src={imagePaths['1234.png']} // placeholder image
-                              alt="Item Image"
-                              className="image"
-                              style={{ maxWidth: '20%', maxHeight: '20%', width: 'auto', height: 'auto' }}
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              inputProps={{
+                                "aria-labelledby": labelId,
+                              }}
                             />
-                          </div>
-                        </TableCell>                     
-                        <TableCell align="right">{row.quantity}</TableCell>
-                        <TableCell align="right">{row.department}</TableCell>
-                        <TableCell align="right">{row.description}</TableCell>
-                        <TableCell align="right" style={{ width: "10%" }}>
-                          <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={(event) => handleRowClick(event, row._id)}
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
                           >
-                            {isOpen ? (
-                              <KeyboardArrowUpIcon />
-                            ) : (
-                              <KeyboardArrowDownIcon />
-                            )}
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell
-                          style={{ paddingBottom: 0, paddingTop: 0 }}
-                          colSpan={6}
-                        >
-                        <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                        <Box
-                        display="flex"
-                        justifyContent="space-evenly"
-                        alignItems="center"
-                        flexDirection="row"
-                        mt={2}
-                      >
-                        <Box>
-                          <img
-                            src={imagePaths['5678.png']} // placeholder image
-                            alt="Item Image"
-                            className="image"
-                            style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
-                          />
-                        </Box>
-                        <Box
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="center"
-                        >
-                        <Box>
-                          {qrcodes[row._id]}
-                        </Box>
-                        <Box mt={2}>
-                          <button onClick={() => handleDialogOpen(row)}>
-                            <img
-                              src={edit}
-                              alt="Edit Item"
-                              className="image"
-                            />
-                          </button>
-                        </Box>
-                      </Box>
-                      </Box>
-                        </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  );
-                })}
-                {emptyRows > 0 && (
-                  <TableRow
-                    style={{
-                      height: 33 * emptyRows,
-                    }}
-                  >
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={inventoryItems.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.name}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, name: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="quantity"
-            label="Quantity"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.quantity}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, quantity: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="department"
-            label="Department"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.department}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, department: e.target.value })
-            }
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="description"
-            label="Description"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={currentItem?.description}
-            onChange={(e) =>
-              setCurrentItem({ ...currentItem, description: e.target.value })
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          {updateItemLoading ? (
-            <CircularProgress size={50} />
-          ) : (
-            <>
-              <Button onClick={handleDialogClose}>Cancel</Button>
-              <Button onClick={handleDialogUpdate}>Update</Button>
-            </>
-          )}
-        </DialogActions>
-      </Dialog>
+                            {row.name}
+                          </TableCell>
+                          <TableCell align="right">{row.quantity}</TableCell>
+                          <TableCell align="right">{row.department}</TableCell>
+                          <TableCell align="right">{row.description}</TableCell>
+                          <TableCell align="right" style={{ width: "10%" }}>
+                            <IconButton
+                              aria-label="expand row"
+                              size="small"
+                              onClick={(event) => handleRowClick(event, row._id)}
+                            >
+                              {isOpen ? (
+                                <KeyboardArrowUpIcon />
+                              ) : (
+                                <KeyboardArrowDownIcon />
+                              )}
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            style={{ paddingBottom: 0, paddingTop: 0 }}
+                            colSpan={6}
+                          >
+                            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                              <Box
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
+                                flexDirection="column"
+                                mt={1}
+                              >
+                                <Box mb={1}>{qrcodes[row._id]}</Box>
+                                <Button onClick={() => handleSetUrlClick(row)}>
+                                  Set URL
+                                </Button>
+                                <button onClick={() => handleDialogOpen(row)}>
+                                  <img
+                                    src={edit}
+                                    alt="Edit Item"
+                                    className="image"
+                                  />
+                                </button>
+                              </Box>
+                            </Collapse>
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    );
+                  })}
+                  {emptyRows > 0 && (
+                    <TableRow
+                      style={{
+                        height: 33 * emptyRows,
+                      }}
+                    >
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={inventoryItems.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Paper>
+        </Box>
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Name"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.name}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, name: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="quantity"
+              label="Quantity"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.quantity}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, quantity: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="department"
+              label="Department"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.department}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, department: e.target.value })
+              }
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="description"
+              label="Description"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={currentItem?.description}
+              onChange={(e) =>
+                setCurrentItem({ ...currentItem, description: e.target.value })
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            {updateItemLoading ? (
+              <CircularProgress size={50} />
+            ) : (
+              <>
+                <Button onClick={handleDialogClose}>Cancel</Button>
+                <Button onClick={handleDialogUpdate}>Update</Button>
+              </>
+            )}
+          </DialogActions>
+        </Dialog>
+        <Dialog open={urlDialogOpen} onClose={handleUrlDialogClose}>
+          <DialogTitle>Set URL</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="url"
+              label="URL"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleUrlDialogClose}>Cancel</Button>
+            <Button onClick={handleUrlUpdate}>Update URL</Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </div>
   );
 }
