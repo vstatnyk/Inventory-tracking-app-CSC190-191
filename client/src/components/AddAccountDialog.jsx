@@ -142,7 +142,7 @@ const AddAccountDialog = () => {
                 color: "white",
               },
             }}
-          >
+        >
           <MenuItem value="office">Office</MenuItem>
           <MenuItem value="finance">Finance</MenuItem>
           <MenuItem value="public outreach">Public Outreach</MenuItem>
