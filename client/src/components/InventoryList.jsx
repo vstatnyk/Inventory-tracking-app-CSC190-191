@@ -38,6 +38,8 @@ import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import AlertPopUp from "./AlertPopUp";
+import { styled } from "@mui/system";
+import { MenuItem } from "@mui/material";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -896,7 +898,7 @@ export default function EnhancedTable({ items }) {
               onChange={handleInputChange}
               InputProps={{
                 style: {
-                  color: "white",
+                  color: "black",
                 },
               }}
             />
@@ -914,28 +916,36 @@ export default function EnhancedTable({ items }) {
               onChange={handleInputChange}
               InputProps={{
                 style: {
-                  color: "white",
+                  color: "black",
                 },
               }}
             />
-            <TextField
+            <StyledTextField
               autoFocus
-              margin="dense"
               label="Department"
               variant="outlined"
-              color="primary"
-              type="text"
               fullWidth
               id="department"
+              select
               name="department"
+              marginTop="20px"
               value={formData.department}
               onChange={handleInputChange}
               InputProps={{
                 style: {
-                  color: "white",
+                  color: "black",
                 },
               }}
-            />
+            >
+              <MenuItem value="office">Office</MenuItem>
+              <MenuItem value="finance">Finance</MenuItem>
+              <MenuItem value="public outreach">Public Outreach</MenuItem>
+              <MenuItem value="lab">Lab</MenuItem>
+              <MenuItem value="operations">Operations</MenuItem>
+              <MenuItem value="shop">Shop</MenuItem>
+              <MenuItem value="fisheries">Fisheries</MenuItem>
+              <MenuItem value="it">It</MenuItem>
+            </StyledTextField>
             <TextField
               autoFocus
               margin="dense"
@@ -950,7 +960,7 @@ export default function EnhancedTable({ items }) {
               onChange={handleInputChange}
               InputProps={{
                 style: {
-                  color: "white",
+                  color: "black",
                 },
               }}
             />
@@ -974,3 +984,8 @@ export default function EnhancedTable({ items }) {
 EnhancedTable.propTypes = {
   items: PropTypes.array.isRequired,
 };
+
+const StyledTextField = styled(TextField)({
+  marginTop: "10px",
+  marginBottom: "8px"
+});

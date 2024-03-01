@@ -10,6 +10,7 @@ import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
+import AddAccountDialog from "../components/AddAccountDialog";
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
@@ -169,6 +170,7 @@ export default function AccountList({ accounts_p }) {
 
   return (
     <>
+      <AddAccountDialog setAccounts={setAccounts}></AddAccountDialog>
       {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
       {loading && (
         <Backdrop
