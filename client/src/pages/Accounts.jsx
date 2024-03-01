@@ -37,7 +37,6 @@ export default function Accounts() {
       )}
       {/* <h1>Accounts</h1> */}
       <Nav active="accounts" />
-      <AddAccountDialog></AddAccountDialog>
       <AccountList accounts_p={users} />
     </>
   );
