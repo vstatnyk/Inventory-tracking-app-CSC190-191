@@ -74,10 +74,10 @@ router.put("/update/:uid", authenticateUser, authorizeUser(2), async (req, res) 
   const { email, password, role } = req.body;
 
   try {
+    await admin.auth().setCustomUserClaims(uid, { accessLevel: role });
     const userRecord = await admin.auth().updateUser(uid, {
       email,
       password,
-      role,
     });
     res.json({ message: "User updated successfully", user: userRecord });
   } catch (error) {

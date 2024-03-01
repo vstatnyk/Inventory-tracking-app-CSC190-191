@@ -124,23 +124,15 @@ export default function AccountList({ accounts_p }) {
   };
 
   // handles changeRole Drop down
-  const handleChangeRole = async (id, value) => {
-    setLoading(true);
+  const handleChangeRole = (id, value) => {
     const updatedAccount = { ...accounts.find((i) => i.uid === id) };
 
     // Modify the existing account to new access Level
     updatedAccount.customClaims.accessLevel = mapAccessLevelToInt(value);
-
-    await updateUser(
-      id,
-      inputValues[`email${id}`],
-      inputValues[`password${id}`],
-      inputValues[`role${id}`],
-      localStorage.getItem("token")
-    );
-    setLoading(false);
-    setAlert(["Account updated successfully", "success"]);
-    setShowAlert(true);
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`role${id}`]: mapAccessLevelToInt(value),
+    }));
   };
 
   const mapAccessLevelToString = (accessLevel) => {
