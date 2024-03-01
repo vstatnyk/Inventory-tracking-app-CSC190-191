@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import AccountList from "../components/AccountList";
 import AddAccountDialog from "../components/AddAccountDialog";
 import Nav from "../components/Nav";
-import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 import { getUsers } from "../utils/api";
 
 export default function Accounts() {
@@ -29,24 +28,18 @@ export default function Accounts() {
 
   return (
     <>
-      {CheckLoginStatus() === true ? (
-        <>
-          {loading && (
-            <Backdrop
-              sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-              open={open}
-            >
-              <CircularProgress color="inherit" />
-            </Backdrop>
-          )}
-          {/* <h1>Accounts</h1> */}
-          <Nav active="accounts" />
-          <AddAccountDialog></AddAccountDialog>
-          <AccountList accounts_p={users} />
-        </>
-      ) : (
-        <></> // CheckLoginStatus() false
+      {loading && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={open}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
       )}
+      {/* <h1>Accounts</h1> */}
+      <Nav active="accounts" />
+      <AddAccountDialog></AddAccountDialog>
+      <AccountList accounts_p={users} />
     </>
   );
 }

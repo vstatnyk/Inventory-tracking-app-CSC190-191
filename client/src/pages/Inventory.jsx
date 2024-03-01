@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import FilterMenu from "../components/FilterMenu";
 import InventoryList from "../components/InventoryList";
 import Nav from "../components/Nav";
-import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 import { getItems } from "../utils/api";
 
 export default function Inventory() {
@@ -29,14 +28,8 @@ export default function Inventory() {
 
   return (
     <>
-      {CheckLoginStatus() === true ? (
-        <>
-          <Nav active="inventory" />
-          <InventoryList classname="InventoryList" items={items} />
-        </>
-      ) : (
-        <></> // CheckLoginStatus() false
-      )}
+      <Nav active="inventory" />
+      <InventoryList classname="InventoryList" items={items} />
     </>
   );
 }
