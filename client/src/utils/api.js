@@ -24,7 +24,13 @@ export const getItem = async (id, token) => {
   return response.data;
 };
 
-export const createItem = async (name, description, quantity, department, token) => {
+export const createItem = async (
+  name,
+  description,
+  quantity,
+  department,
+  token
+) => {
   const response = await axios.post(
     `${BASE_URL}/items`,
     {
@@ -42,7 +48,14 @@ export const createItem = async (name, description, quantity, department, token)
   return response.data;
 };
 
-export const updateItem = async (id, name, description, quantity, department, token) => {
+export const updateItem = async (
+  id,
+  name,
+  description,
+  quantity,
+  department,
+  token
+) => {
   const response = await axios.put(
     `${BASE_URL}/items/${id}`,
     {
@@ -92,6 +105,13 @@ export const registerUser = async (email, password, role, token) => {
       },
     }
   );
+  return response.data;
+};
+
+export const verifyUser = async (idToken) => {
+  const response = await axios.post(`${BASE_URL}/users/verify`, {
+    idToken: idToken,
+  });
   return response.data;
 };
 
