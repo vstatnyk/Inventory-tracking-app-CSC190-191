@@ -8,6 +8,7 @@ const {
 const admin = require("../../config/FirebaseConfig");
 const authorizeUser = require("../utils/authorizeUser");
 const authenticateUser = require("../utils/authenticateUser");
+const Account = require("../models/Account");
 
 router.get(
   "/accounts",
@@ -15,11 +16,15 @@ router.get(
   authorizeUser(2),
   async (req, res) => {
     try {
-      const listUsersResult = await admin.auth().listUsers();
-      const users = listUsersResult.users.map((userRecord) => ({
-        uid: userRecord.uid,
-        email: userRecord.email,
-        customClaims: userRecord.customClaims,
+        const listUsersResult = await admin.auth().listUsers();
+        const users = await Promise.all(listUsersResult.users.map(async (userRecord) => {
+          const account = await Account.findOne({ uid: userRecord.uid }, { _id: 0, uid: 1, department: 1 });
+          return {
+            uid: userRecord.uid,
+            email: userRecord.email,
+            customClaims: userRecord.customClaims,
+            department: account ? account.department : [],
+          };
       }));
       res.json(users);
     } catch (error) {
@@ -34,7 +39,7 @@ router.post(
   authorizeUser(2),
   async (req, res) => {
     const auth = getAuth();
-    const { email, password, role } = req.body;
+    const { email, password, role, department } = req.body;
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -42,6 +47,12 @@ router.post(
         email,
         password
       );
+      // create new user document in mongoDB
+      const newAccountMDB = new Account({
+        uid: userCredential.user.uid,
+        department: [department],
+    });
+    await newAccountMDB.save();
 
       await admin
         .auth()
@@ -49,7 +60,7 @@ router.post(
       res.json(userCredential.user);
     } catch (error) {
       res.status(400).json({ error: error.message });
-    }
+    }    
   }
 );
 
