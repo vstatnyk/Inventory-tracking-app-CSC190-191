@@ -11,6 +11,7 @@ import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
 import AddAccountDialog from "../components/AddAccountDialog";
+import { MenuItem, TextField } from '@mui/material';
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
@@ -20,6 +21,7 @@ export default function AccountList({ accounts_p }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [departmentFilter, setDepartmentFilter] = useState("");
 
   useEffect(() => {
     if (showAlert) {
@@ -171,6 +173,26 @@ export default function AccountList({ accounts_p }) {
   return (
     <>
       <AddAccountDialog setAccounts={setAccounts}></AddAccountDialog>
+      <div style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}>
+        <TextField
+          select
+          label="Filter by Department"
+          value={departmentFilter}
+          onChange={(e) => setDepartmentFilter(e.target.value)}
+          variant="outlined"
+          style={{ width: "200px" }}
+        >
+          <MenuItem value="">All Departments</MenuItem>
+          <MenuItem value="Office">Office</MenuItem>
+          <MenuItem value="Finance">Finance</MenuItem>
+          <MenuItem value="Public Outreach">Public Outreach</MenuItem>
+          <MenuItem value="Lab">Lab</MenuItem>
+          <MenuItem value="Operations">Operations</MenuItem>
+          <MenuItem value="Shop">Shop</MenuItem>
+          <MenuItem value="Fisheries">Fisheries</MenuItem>
+          <MenuItem value="IT">IT</MenuItem>
+        </TextField>
+      </div>
       {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
       {loading && (
         <Backdrop
@@ -194,7 +216,13 @@ export default function AccountList({ accounts_p }) {
         }}
         className="accountSwiper"
       >
-        {accounts.map((account) => (
+        {accounts
+          .filter(account => {
+            const included = !departmentFilter || (account.departments && account.departments.includes(departmentFilter));
+            console.log("Filtering:", account.name, "Included:", included);
+            return included;
+          })
+          .map((account) => (
           <SwiperSlide key={account.uid}>
             <div className="account">
               <img
