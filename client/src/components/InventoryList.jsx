@@ -38,7 +38,6 @@ import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import AlertPopUp from "./AlertPopUp";
-import jsPDF from "jspdf";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -752,6 +751,10 @@ export default function EnhancedTable({ items }) {
                                     className="image"
                                   />
                                 </button>
+
+                                <button onClick={handleAddItem}>handlePrintQRCode</button>
+                                <button onClick={handleAddItem}>handleDownloadQRCode</button>
+
                               </Box>
                             </Collapse>
                           </TableCell>
