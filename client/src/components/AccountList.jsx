@@ -12,6 +12,9 @@ import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
@@ -22,6 +25,8 @@ export default function AccountList({ accounts_p }) {
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = useState(false);
   const [departmentFilter, setDepartmentFilter] = useState("");
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [accountToDelete, setAccountToDelete] = useState(null);
 
   useEffect(() => {
     if (showAlert) {
@@ -117,6 +122,15 @@ export default function AccountList({ accounts_p }) {
     );
   };
 
+  const handleDeleteDialogOpen = (id) => {
+    setOpenDeleteDialog(true);
+    setAccountToDelete(id);
+  }
+
+  const handleDeleteDialogClose = () => {
+    setOpenDeleteDialog(false);
+  }
+
   const handleDeleteAccount = async (id) => {
     setLoading(true);
     const updatedAccounts = accounts.filter((account) => account.uid !== id);
@@ -126,6 +140,7 @@ export default function AccountList({ accounts_p }) {
     setLoading(false);
     setAlert(["Account deleted successfully", "success"]);
     setShowAlert(true);
+    handleDeleteDialogClose();
   };
 
   // handles changeRole Drop down
@@ -356,7 +371,7 @@ export default function AccountList({ accounts_p }) {
                       </button>
                       <button
                         id={`button${account.uid}`}
-                        onClick={() => handleDeleteAccount(account.uid)}
+                        onClick={() => handleDeleteDialogOpen(account.uid)}
                       >
                         <img src={del} alt="Delete Item" className="image" />
                       </button>
@@ -367,6 +382,21 @@ export default function AccountList({ accounts_p }) {
             </SwiperSlide>
           ))}
       </Swiper>
+      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+          Are you sure you want to delete?
+        </DialogTitle>
+        <center>
+          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+          <button onClick={() => handleDeleteAccount(accountToDelete)} color="primary" autoFocus>
+            Confirm
+          </button>
+            <button onClick={handleDeleteDialogClose} color="primary">
+              Cancel
+            </button>
+          </DialogActions>
+        </center>
+      </Dialog>
     </>
   );
 }
