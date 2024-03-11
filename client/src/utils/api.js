@@ -91,14 +91,20 @@ export const getUsers = async (token) => {
   return response.data;
 };
 
-export const registerUser = async (email, password, role, department, token) => {
+export const registerUser = async (
+  email,
+  password,
+  role,
+  department,
+  token
+) => {
   const response = await axios.post(
     `${BASE_URL}/users/register`,
     {
       email: email,
       password: password,
       role: role,
-      department:department
+      department: department,
     },
     {
       headers: {
@@ -141,13 +147,22 @@ export const deleteUser = async (uid, token) => {
   return response.data;
 };
 
-export const updateUser = async (uid, email, password, role, token) => {
+export const updateUser = async (
+  uid,
+  email,
+  password,
+  role,
+  department,
+  token
+) => {
   const response = await axios.put(
     `${BASE_URL}/users/update/${uid}`,
     {
       email: email,
       password: password,
       role: role,
+      department: department,
+      accountId: uid,
     },
     {
       headers: {

@@ -106,6 +106,8 @@ router.delete(
     const { uid } = req.params;
 
     try {
+      await Account.findOneAndRemove({ uid: uid });
+
       await admin.auth().deleteUser(uid);
       res.json({ message: "User deleted successfully" });
     } catch (error) {
@@ -119,12 +121,24 @@ router.put(
   authenticateUser,
   authorizeUser(2),
   async (req, res) => {
-    const { uid } = req.params;
-    const { email, password, role } = req.body;
+    const { uid } = req.params.uid;
+    const { email, password, role, department, accountId } = req.body;
+
+    let Department = department.split(",");
+    console.log(accountId);
+    console.log(Department);
 
     try {
-      await admin.auth().setCustomUserClaims(uid, { accessLevel: role });
-      const userRecord = await admin.auth().updateUser(uid, {
+      await Account.findOneAndUpdate(
+        { uid: accountId }, // Filter
+        { $set: { department: Department } }, // Update
+        { new: true } // Options
+      );
+      console.log("Account updated successfully in MongoDB");
+
+      await admin.auth().setCustomUserClaims(accountId, { accessLevel: role });
+      console.log("Role updated successfully in Firebase");
+      const userRecord = await admin.auth().updateUser(accountId, {
         email,
         password,
       });

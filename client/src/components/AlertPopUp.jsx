@@ -28,4 +28,4 @@ export default function AlertPopUp({ message, type }) {
 AlertPopUp.propTypes = {
   message: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
-
+};

@@ -12,11 +12,21 @@ const CheckInOut = () => {
   const [Item, setItem] = useState(null);
 
   const { id } = useParams();
+  console.log(id);
+  const item = getItem(
+    "65eb4f737978686763768115",
+    localStorage.getItem("token")
+  );
+  console.log(item);
 
   useEffect(() => {
     const fetchItems = async () => {
+      // console.log(localStorage.getItem("token"));
       try {
-        const item = await getItem(id, localStorage.getItem("token"));
+        const item = await getItem(
+          "65eb4f737978686763768115",
+          localStorage.getItem("token")
+        );
         console.log(item);
         setItem(item);
       } catch (error) {
@@ -24,7 +34,7 @@ const CheckInOut = () => {
       }
     };
     fetchItems();
-    console.log(id);
+    // console.log(id);
   }, [id]);
 
   return (
@@ -45,6 +55,7 @@ const CheckInOut = () => {
       >
         <CardMedia sx={{ height: 300 }} image="/react.svg" title="images" />
         <CardContent>
+          {/* {console.log(Item)} */}
           <div>{Item.name}</div>
           <div>{Item.description}</div>
           <div>{Item.quantity}</div>

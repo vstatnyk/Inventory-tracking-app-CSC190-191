@@ -2,12 +2,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { CircularProgress, DialogContentText, InputAdornment } from "@mui/material";
+import {
+  CircularProgress,
+  DialogContentText,
+  InputAdornment,
+} from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 // import CircularProgress from "@mui/material/CircularProgress";
+import { MenuItem } from "@mui/material";
 import Collapse from "@mui/material/Collapse";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -28,6 +33,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
+import { styled } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
 import Fuse from "fuse.js";
 import PropTypes from "prop-types";
@@ -38,8 +44,6 @@ import edit from "../images/edit-button.svg";
 import { createItem, deleteItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import AlertPopUp from "./AlertPopUp";
-import { styled } from "@mui/system";
-import { MenuItem } from "@mui/material";
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -180,14 +184,14 @@ function EnhancedTableToolbar(props) {
 
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  
+
   const handleDeleteDialogOpen = () => {
     setOpenDeleteDialog(true);
-  }
+  };
 
   const handleDeleteDialogClose = () => {
     setOpenDeleteDialog(false);
-  }
+  };
 
   const handleDeleteItem = async () => {
     const itemsToDelete = [...selected]; // Copy selected items
@@ -212,7 +216,6 @@ function EnhancedTableToolbar(props) {
       });
       return newQrcodes;
     });
-
 
     handleDeleteDialogClose();
   };
@@ -255,15 +258,14 @@ function EnhancedTableToolbar(props) {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : null
-      }
+      ) : null}
 
       <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+        <DialogTitle sx={{ display: "flex", justifyContent: "center" }}>
           Are you sure you want to delete?
         </DialogTitle>
         <center>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+          <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
             <button onClick={handleDeleteItem} color="primary" autoFocus>
               Confirm
             </button>
@@ -273,7 +275,6 @@ function EnhancedTableToolbar(props) {
           </DialogActions>
         </center>
       </Dialog>
-
     </Toolbar>
   );
 }
@@ -312,19 +313,18 @@ export default function EnhancedTable({ items }) {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const [formData, setFormData] = useState({
-    name: '',
-    quantity: '',
-    department: '',
-    description: ''
+    name: "",
+    quantity: "",
+    department: "",
+    description: "",
   });
-
 
   const fuse = new Fuse(inventoryItems, {
     keys: ["name"], // Add the keys you want to include in the search
     threshold: 0.3, // Adjust the threshold according to your needs
   });
 
- // Handle search change
+  // Handle search change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     if (e.target.value) {
@@ -411,19 +411,17 @@ export default function EnhancedTable({ items }) {
 
   const generateQRCode = (item, id) => {
     const qrCodeData = {
-
       url: item.url ? item.url : "http://localhost:5173/checkinout/" + id,
     };
-  
+
     const qrCodeString = JSON.stringify(qrCodeData);
     return <QRCode value={qrCodeString} />;
   };
 
-
   const handleDownloadQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
     const dataUrl = qrCodeSvg.toDataURL("image/png");
-  
+
     // Trigger download
     const link = document.createElement("a");
     link.href = dataUrl;
@@ -433,7 +431,7 @@ export default function EnhancedTable({ items }) {
 
   const handlePrintQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
-  
+
     // Create a new window with the QR code
     const printWindow = window.open("", "_blank");
     printWindow.document.write(`
@@ -455,16 +453,15 @@ export default function EnhancedTable({ items }) {
       </html>
     `);
   };
-  
 
-  const handleAddItem = async () => {
-    setLoading(true);
-    const newItemObject = {
-      name: "New Item",
-      description: "This is a new item",
-      quantity: 10,
-      department: ["New Department"],
-    };
+  // const handleAddItem = async () => {
+  //   setLoading(true);
+  //   const newItemObject = {
+  //     name: "New Item",
+  //     description: "This is a new item",
+  //     quantity: 10,
+  //     department: ["New Department"],
+  //   };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -476,7 +473,6 @@ export default function EnhancedTable({ items }) {
 
   const handleAddItem = async () => {
     setLoading(true);
-
 
     const newItem = await createItem(
       formData.name,
@@ -499,16 +495,15 @@ export default function EnhancedTable({ items }) {
     setShowAlert(true);
 
     handleAddDialogClose();
-
   };
 
   const handleAddDialogOpen = () => {
     setOpenAddDialog(true);
-  }
+  };
 
   const handleAddDialogClose = () => {
     setOpenAddDialog(false);
-  }
+  };
 
   const handleDialogOpen = (item) => {
     setCurrentItem(item);
@@ -553,7 +548,6 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleExportClick = () => {
-    
     if (!inventoryItems || inventoryItems.length === 0) {
       alert("No inventory items to export.");
       return;
@@ -642,16 +636,16 @@ export default function EnhancedTable({ items }) {
 
   const handleClickRow = (event, id) => {
     const isOpen = openRows[id];
-    setOpenRows(prevOpenRows => ({
+    setOpenRows((prevOpenRows) => ({
       ...prevOpenRows,
-      [id]: !isOpen
+      [id]: !isOpen,
     }));
   };
 
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-  
+
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
@@ -696,12 +690,15 @@ export default function EnhancedTable({ items }) {
   return (
     <div style={{ display: "flex" }}>
       {/* Sidebar */}
-      <div style={{ width: "10%", padding: "20px", display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          width: "10%",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-
-           
-
-          
           <button onClick={() => handleAddDialogOpen()}>Add Item</button>
           <button onClick={handleExportClick}>Generate Report</button>
         </div>
@@ -718,8 +715,15 @@ export default function EnhancedTable({ items }) {
           }}
         />
       </div>
-  
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
         {loading && (
           <Backdrop
@@ -759,12 +763,11 @@ export default function EnhancedTable({ items }) {
                     const isItemSelected = isSelected(row._id);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     const isOpen = openRows[row._id];
-  
+
                     return (
                       <>
                         <TableRow
                           hover
-
                           onClick={(event) => handleClickRow(event, row._id)}
                           role="checkbox"
                           aria-checked={isItemSelected}
@@ -774,17 +777,14 @@ export default function EnhancedTable({ items }) {
                           sx={{ cursor: "pointer" }}
                         >
                           <TableCell padding="checkbox">
-
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            onChange={(event) => handleClick(event, row._id)}
+                            <Checkbox
+                              color="primary"
+                              checked={isItemSelected}
+                              onChange={(event) => handleClick(event, row._id)}
                               inputProps={{
                                 "aria-labelledby": labelId,
                               }}
-                              />
-
-
+                            />
                           </TableCell>
                           <TableCell
                             component="th"
@@ -801,7 +801,9 @@ export default function EnhancedTable({ items }) {
                             <IconButton
                               aria-label="expand row"
                               size="small"
-                              onClick={(event) => handleRowClick(event, row._id)}
+                              onClick={(event) =>
+                                handleRowClick(event, row._id)
+                              }
                             >
                               {isOpen ? (
                                 <KeyboardArrowUpIcon />
@@ -836,10 +838,12 @@ export default function EnhancedTable({ items }) {
                                   />
                                 </button>
 
-
-                                <button onClick={handleAddItem}>handlePrintQRCode</button>
-                                <button onClick={handleAddItem}>handleDownloadQRCode</button>
-
+                                <button onClick={handleAddItem}>
+                                  handlePrintQRCode
+                                </button>
+                                <button onClick={handleAddItem}>
+                                  handleDownloadQRCode
+                                </button>
                               </Box>
                             </Collapse>
                           </TableCell>
@@ -922,7 +926,10 @@ export default function EnhancedTable({ items }) {
               variant="standard"
               value={currentItem?.description}
               onChange={(e) =>
-                setCurrentItem({ ...currentItem, description: e.target.value })
+                setCurrentItem({
+                  ...currentItem,
+                  description: e.target.value,
+                })
               }
             />
           </DialogContent>
@@ -959,11 +966,11 @@ export default function EnhancedTable({ items }) {
         </Dialog>
 
         <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+          <DialogTitle sx={{ display: "flex", justifyContent: "center" }}>
             Add Item
           </DialogTitle>
           <DialogContent>
-          <TextField
+            <TextField
               autoFocus
               margin="dense"
               label="Name"
@@ -1045,7 +1052,7 @@ export default function EnhancedTable({ items }) {
             />
           </DialogContent>
           <center>
-            <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
+            <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
               <button onClick={handleAddItem} color="primary" autoFocus>
                 OK
               </button>
@@ -1055,7 +1062,6 @@ export default function EnhancedTable({ items }) {
             </DialogActions>
           </center>
         </Dialog>
-
       </div>
     </div>
   );
@@ -1067,6 +1073,5 @@ EnhancedTable.propTypes = {
 
 const StyledTextField = styled(TextField)({
   marginTop: "10px",
-  marginBottom: "8px"
+  marginBottom: "8px",
 });
-
