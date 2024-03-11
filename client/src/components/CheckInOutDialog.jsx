@@ -6,12 +6,23 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { styled } from "@mui/system";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { updateItem } from "../utils/api";
+import AlertPopUp from "./AlertPopUp";
 
 function MyDialog(props) {
   const [open, setOpen] = useState(false);
   const [quantity, setQuantity] = useState(0);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alert, setAlert] = useState([]);
+
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 3500);
+    }
+  }, [showAlert]);
 
   const handelQuantityChange = (e) => {
     setQuantity(e.target.value);
@@ -28,16 +39,24 @@ function MyDialog(props) {
           props.item._id,
           props.item.name,
           props.item.description,
-          quantity,
+          props.item.quantity + Number(quantity),
+          props.item.department,
           localStorage.getItem("token")
         );
-        props.item.quantity = quantity;
+        props.item.quantity = props.item.quantity + Number(quantity);
+
+        setAlert(["success", "success"]);
+        setShowAlert(true);
       } catch (error) {
+        setAlert(["Error updating item: " + error.message, "error"]);
+        setShowAlert(true);
         console.error("Error updating item:", error.message);
       }
       setOpen(false);
     } else {
-      alert("Quantity must not be empty and be greater than 0");
+      setAlert(["Quantity must not be empty and be greater than 0", "info"]);
+      setShowAlert(true);
+      // alert();
     }
   };
 
@@ -81,6 +100,11 @@ function MyDialog(props) {
           </button>
         </DialogActions>
       </Dialog>
+      {showAlert && (
+        <div>
+          <AlertPopUp message={alert[0]} type={alert[1]} />
+        </div>
+      )}
     </div>
   );
 }

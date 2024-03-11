@@ -6,12 +6,6 @@ const validator = require('validator'); // Adding the validator library
 
 router.get('/', authorizeUser(2), async (req, res) => {
   try {
-    // Validate and sanitize user input, if applicable
-    const userInput = req.query.someInput;
-    if (!validator.isAlphanumeric(userInput)) {
-      return res.status(400).json({ message: 'Invalid input' });
-    }
-
     // Use Mongoose query builder methods to construct a secure query
     const transactions = await Transaction.find()
       .sort({ date: -1 })

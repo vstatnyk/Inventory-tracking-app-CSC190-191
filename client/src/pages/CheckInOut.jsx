@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import CheckInOutDialog from "../components/CheckInOutDialog";
 import Nav from "../components/Nav";
-import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 import { getItem } from "../utils/api";
 
 const CheckInOut = () => {
@@ -30,45 +29,37 @@ const CheckInOut = () => {
 
   return (
     <>
-      (
-      {CheckLoginStatus() && Item ? (
-        <>
-          <Nav></Nav>
-          name: Testing description: Testing Description quantity: 65 __v: 0
-          <Card
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              margin: "auto",
-              width: 600,
-              maxWidth: "75%",
-              border: "1px solid black",
-              height: 500,
-            }}
-          >
-            <CardMedia sx={{ height: 300 }} image="/react.svg" title="images" />
-            <CardContent>
-              <div>{Item.name}</div>
-              <div>{Item.description}</div>
-              <div>{Item.quantity}</div>
-            </CardContent>
-            <CardActions sx={{ margin: "auto" }}>
-              <CheckInOutDialog
-                buttonName="Check In"
-                item={Item}
-              ></CheckInOutDialog>
-              <CheckInOutDialog
-                buttonName="Check Out"
-                item={Item}
-              ></CheckInOutDialog>
-            </CardActions>
-          </Card>
-        </>
-      ) : (
-        <h1>Item not found or you are not logged in</h1> // CheckLoginStatus() false
-      )}
-      )
+      <Nav></Nav>
+      name: Testing description: Testing Description quantity: 65 __v: 0
+      <Card
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          margin: "auto",
+          width: 600,
+          maxWidth: "75%",
+          border: "1px solid black",
+          height: 500,
+        }}
+      >
+        <CardMedia sx={{ height: 300 }} image="/react.svg" title="images" />
+        <CardContent>
+          <div>{Item.name}</div>
+          <div>{Item.description}</div>
+          <div>{Item.quantity}</div>
+        </CardContent>
+        <CardActions sx={{ margin: "auto" }}>
+          <CheckInOutDialog
+            buttonName="Check In"
+            item={Item}
+          ></CheckInOutDialog>
+          <CheckInOutDialog
+            buttonName="Check Out"
+            item={Item}
+          ></CheckInOutDialog>
+        </CardActions>
+      </Card>
     </>
   );
 };

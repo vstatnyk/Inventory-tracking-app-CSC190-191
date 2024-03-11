@@ -25,15 +25,13 @@
   display: flex;
   justify-content: center;
   list-style-type: none;
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   font-size: 1.5rem;
 }
 
 .nav li {
   display: inline-block;
   padding: 5px;
-  padding-top: 10px;
-  padding-bottom: 10px;
 }
 
 .nav li .active {
@@ -41,7 +39,9 @@
 }
 
 .nav {
-  justify-items: left;
+  z-index: 2; /* set higher z-index value */
+  /* position: fixed; */
+  border: 1px solid #d47927;
   margin-bottom: 1em;
   width: 100%;
   background-color: #d47927;
@@ -222,7 +222,6 @@ button:not(.MuiIconButton-root) {
 
 .accountSwiper .swiper-wrapper {
   height: 800px;
-
 }
 
 .accountSwiper .swiper-pagination {
@@ -238,4 +237,11 @@ button:not(.MuiIconButton-root) {
 
 .accountSwiper .swiper-pagination-bullet-active {
   background-color: #007bab;
+}
+
+.popup-container {
+  position: fixed;
+  top: 20px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
+  z-index: 1000; /* Ensure it's above other content */
 }

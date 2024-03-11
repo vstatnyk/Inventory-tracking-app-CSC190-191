@@ -11,12 +11,19 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { styled } from "@mui/system";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { registerUser } from "../utils/api";
+import AlertPopUp from "./AlertPopUp";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
+import { getUsers } from "../utils/api";
 
-const AddAccountDialog = () => {
+const AddAccountDialog = ({ setAccounts }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alert, setAlert] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,26 +32,41 @@ const AddAccountDialog = () => {
   });
 
   const handleAddAccount = async () => {
+
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (event) => {
-    var role = 1;
-    if (formData.role === "admin") {
+  const handleFormSubmit = async () => {
+    try {
+      setLoading(true);
+      var role = 1;
+      if (formData.role === "admin") {
         role = 4;
-    } else if (formData.role === "manager") {
-      role = 3;
-    } else if (formData.role === "supervisor") {
-      role = 2;
+      } else if (formData.role === "manager") {
+        role = 3;
+      } else if (formData.role === "supervisor") {
+        role = 2;
+      }
+      await registerUser(
+        formData.email,
+        formData.password,
+        role,
+        formData.department,
+        localStorage.getItem('token')
+      );
+      try {
+        const users = await getUsers(localStorage.getItem("token"));
+        setAccounts(users);
+      } catch (error) {
+        console.error("Error fetching users:", error.message);
+      }
+      setLoading(false);
+      setAlert(["Account created successfully", "success"]);
+      setShowAlert(true);
+      setIsFormOpen(false);
+    } catch (error) {
+      console.error("Registration failed:", "error");
     }
-    await registerUser(
-      formData.email,
-      formData.password,
-      role,
-      localStorage.getItem('token')
-    );
-    setIsFormOpen(false);
-    window.location.reload();
   };
 
   const handleInputChange = (event) => {
@@ -66,8 +88,17 @@ const AddAccountDialog = () => {
   return (
     <div>
       <button onClick={handleAddAccount}>Add Account</button>
+      {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
       <div>
       <Dialog open={isFormOpen} onClose={closeForm}>
+        {loading && (
+          <Backdrop
+            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={open}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
+        )}
         <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
           Add Account
         </DialogTitle>
@@ -142,7 +173,7 @@ const AddAccountDialog = () => {
                 color: "white",
               },
             }}
-          >
+        >
           <MenuItem value="office">Office</MenuItem>
           <MenuItem value="finance">Finance</MenuItem>
           <MenuItem value="public outreach">Public Outreach</MenuItem>

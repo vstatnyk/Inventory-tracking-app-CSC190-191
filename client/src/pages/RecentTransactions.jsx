@@ -2,7 +2,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
-import { CheckLoginStatus } from "../functions/CheckLoginStatus";
 import { getTransactions } from "../utils/api";
 
 //styles for MUI components
@@ -39,31 +38,27 @@ export default function RecentTransactions() {
 
   return (
     <>
-      {CheckLoginStatus() === true ? (
-        <div style={{ color: "black" }}>
-          {/* <h1>Recent Transactions</h1> */}
-          <Nav active="recent" />
-          {transactions.map((transaction) => (
-            <Accordion key={transaction._id} sx={AccordionStyle}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <div>{new Date(transaction.date).toLocaleString()}</div>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div>User: {transaction.userEmail}</div>
-                <div>Product: {transaction.productName}</div>
-                <div>Quantity: {transaction.quantity}</div>
-                <div>Description: {transaction.description}</div>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </div>
-      ) : (
-        <></> // CheckLoginStatus() false
-      )}
+      <div style={{ color: "black" }}>
+        {/* <h1>Recent Transactions</h1> */}
+        <Nav active="recent" />
+        {transactions.map((transaction) => (
+          <Accordion key={transaction._id} sx={AccordionStyle}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <div>{new Date(transaction.date).toLocaleString()}</div>
+            </AccordionSummary>
+            <AccordionDetails>
+              <div>User: {transaction.userEmail}</div>
+              <div>Product: {transaction.productName}</div>
+              <div>Quantity: {transaction.quantity}</div>
+              <div>Description: {transaction.description}</div>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </div>
     </>
   );
 }

@@ -15,11 +15,16 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/system";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import {
+  getAuth,
+  
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../images/mosqeet.png";
-import { loginUser } from "../utils/api";
+import { loginUser, verifyUser } from "../utils/api";
 
 //styles for MUI components
 const StyledTextField = styled(TextField)({
@@ -138,9 +143,19 @@ export default function Login() {
     setShowPassword(!showPassword);
   };
 
+  useEffect(() => async () => {
+    const token = localStorage.getItem("token");
+    const decodedToken = await verifyUser(token);
+    if (decodedToken) {
+      navigate("/inventory");
+    }
+  }, [navigate]);
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     try {
+      const auth = getAuth();
+      await signInWithEmailAndPassword(auth, email, password);
       const data = await loginUser(email, password);
       localStorage.setItem("token", data.token);
       navigate("/inventory");
@@ -149,13 +164,6 @@ export default function Login() {
       setErrorMessage(error.message);
     }
   };
-
-  useEffect(() => {
-    const isAuthenticated = !!localStorage.getItem("token");
-    if (isAuthenticated) {
-      navigate("/inventory");
-    }
-  }, [navigate]);
 
   return (
     <Container sx={containerStyle}>
