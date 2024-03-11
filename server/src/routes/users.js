@@ -16,16 +16,21 @@ router.get(
   authorizeUser(2),
   async (req, res) => {
     try {
-        const listUsersResult = await admin.auth().listUsers();
-        const users = await Promise.all(listUsersResult.users.map(async (userRecord) => {
-          const account = await Account.findOne({ uid: userRecord.uid }, { _id: 0, uid: 1, department: 1 });
+      const listUsersResult = await admin.auth().listUsers();
+      const users = await Promise.all(
+        listUsersResult.users.map(async (userRecord) => {
+          const account = await Account.findOne(
+            { uid: userRecord.uid },
+            { _id: 0, uid: 1, department: 1 }
+          );
           return {
             uid: userRecord.uid,
             email: userRecord.email,
             customClaims: userRecord.customClaims,
             department: account ? account.department : [],
           };
-      }));
+        })
+      );
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -51,8 +56,8 @@ router.post(
       const newAccountMDB = new Account({
         uid: userCredential.user.uid,
         department: [department],
-    });
-    await newAccountMDB.save();
+      });
+      await newAccountMDB.save();
 
       await admin
         .auth()
@@ -60,7 +65,7 @@ router.post(
       res.json(userCredential.user);
     } catch (error) {
       res.status(400).json({ error: error.message });
-    }    
+    }
   }
 );
 

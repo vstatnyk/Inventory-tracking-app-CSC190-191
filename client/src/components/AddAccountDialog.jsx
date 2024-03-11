@@ -11,15 +11,14 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { styled } from "@mui/system";
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { registerUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { getUsers } from "../utils/api";
 
-
-const AddAccountDialog = ({ setAccounts}) => {
+const AddAccountDialog = ({ setAccounts }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -33,10 +32,11 @@ const AddAccountDialog = ({ setAccounts}) => {
   });
 
   const handleAddAccount = async () => {
+
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (event) => {
+  const handleFormSubmit = async () => {
     try {
       setLoading(true);
       var role = 1;
@@ -51,6 +51,7 @@ const AddAccountDialog = ({ setAccounts}) => {
         formData.email,
         formData.password,
         role,
+        formData.department,
         localStorage.getItem('token')
       );
       try {
