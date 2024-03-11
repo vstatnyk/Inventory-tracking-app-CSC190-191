@@ -583,10 +583,18 @@ export default function EnhancedTable({ items }) {
     setSelected([]);
   };
 
+  const handleClickRow = (event, id) => {
+    const isOpen = openRows[id];
+    setOpenRows(prevOpenRows => ({
+      ...prevOpenRows,
+      [id]: !isOpen
+    }));
+  };
+
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-
+  
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
@@ -696,7 +704,7 @@ export default function EnhancedTable({ items }) {
                       <>
                         <TableRow
                           hover
-                          onClick={(event) => handleClick(event, row._id)}
+                          onClick={(event) => handleClickRow(event, row._id)}
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
@@ -705,13 +713,15 @@ export default function EnhancedTable({ items }) {
                           sx={{ cursor: "pointer" }}
                         >
                           <TableCell padding="checkbox">
-                            <Checkbox
-                              color="primary"
-                              checked={isItemSelected}
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            onChange={(event) => handleClick(event, row._id)}
                               inputProps={{
                                 "aria-labelledby": labelId,
                               }}
-                            />
+                              />
+
                           </TableCell>
                           <TableCell
                             component="th"
