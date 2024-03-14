@@ -22,6 +22,8 @@ const TableRowComponent = ({
   qrcodes,
   handleSetUrlClick,
   handleDialogOpen,
+  handlePrintQRCode,
+  handleDownloadQRCode,
 }) => {
   return (
     <>
@@ -72,11 +74,15 @@ const TableRowComponent = ({
             >
               <Box mb={1}>{qrcodes[row._id]}</Box>
               <Button onClick={() => handleSetUrlClick(row)}>Set URL</Button>
-              <Button onClick={() => handleDialogOpen(row)}><img
-                                    src={edit}
-                                    alt="Edit Item"
-                                    className="image"
-                                  /></Button>
+              <Button onClick={() => handleDialogOpen(row)}>
+                <img src={edit} alt="Edit Item" className="image" />
+              </Button>
+              <Button onClick={() => handlePrintQRCode(row)}>
+                Print QR Code
+              </Button>
+              <Button onClick={() => handleDownloadQRCode(row)}>
+                Download QR Code
+              </Button>
             </Box>
           </Collapse>
         </TableCell>
@@ -95,6 +101,8 @@ TableRowComponent.propTypes = {
   qrcodes: PropTypes.object.isRequired,
   handleSetUrlClick: PropTypes.func.isRequired,
   handleDialogOpen: PropTypes.func.isRequired,
+  handlePrintQRCode: PropTypes.func.isRequired,
+  handleDownloadQRCode: PropTypes.func.isRequired,
 };
 
 export default TableRowComponent;

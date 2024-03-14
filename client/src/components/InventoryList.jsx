@@ -532,6 +532,8 @@ export default function EnhancedTable({ items }) {
                         qrcodes={qrcodes}
                         row={row}
                         key={row._id}
+                        handlePrintQRCode={handlePrintQRCode}
+                        handleDownloadQRCode={handleDownloadQRCode}
                       />
                     );
                   })}
