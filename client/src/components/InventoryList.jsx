@@ -63,7 +63,9 @@ export default function EnhancedTable({ items }) {
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
+
   const [openAddDialog, setOpenAddDialog] = React.useState(false);
+
   const [updateItemLoading, setUpdateItemLoading] = React.useState(false);
   const [filteredItems, setFilteredItems] = React.useState(inventoryItems);
   const [urlDialogOpen, setUrlDialogOpen] = React.useState(false);
@@ -73,6 +75,7 @@ export default function EnhancedTable({ items }) {
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
+
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
@@ -179,6 +182,51 @@ export default function EnhancedTable({ items }) {
     return <QRCode value={qrCodeString} />;
   };
 
+  const handleDownloadQRCode = (item) => {
+    const qrCodeSvg = generateQRCode(item, item._id);
+    const dataUrl = qrCodeSvg.toDataURL("image/png");
+
+    // Trigger download
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = `qrcode_${item.name}.png`;
+    link.click();
+  };
+
+  const handlePrintQRCode = (item) => {
+    const qrCodeSvg = generateQRCode(item, item._id);
+
+    // Create a new window with the QR code
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Print QR Code</title>
+        </head>
+        <body>
+          ${qrCodeSvg.outerHTML}
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() {
+                window.close();
+              }
+            };
+          </script>
+        </body>
+      </html>
+    `);
+  };
+
+  // const handleAddItem = async () => {
+  //   setLoading(true);
+  //   const newItemObject = {
+  //     name: "New Item",
+  //     description: "This is a new item",
+  //     quantity: 10,
+  //     department: ["New Department"],
+  //   };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({
@@ -209,6 +257,7 @@ export default function EnhancedTable({ items }) {
     setAlert(["Success", "success"]);
     setLoading(false);
     setShowAlert(true);
+
     handleAddDialogClose();
   };
 
