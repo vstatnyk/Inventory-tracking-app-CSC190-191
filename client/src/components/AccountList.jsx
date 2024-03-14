@@ -239,8 +239,8 @@ export default function AccountList({ accounts_p }) {
           .filter((account) => {
             const included =
               !departmentFilter ||
-              (account.departments &&
-                account.departments.includes(departmentFilter));
+              (account.department &&
+                account.department.includes(departmentFilter));
             console.log("Filtering:", account.name, "Included:", included);
             return included;
           })
