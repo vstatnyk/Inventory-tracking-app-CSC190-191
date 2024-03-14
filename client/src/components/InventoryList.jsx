@@ -1,45 +1,29 @@
-import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { CircularProgress, DialogContentText, InputAdornment } from "@mui/material";
+import { CircularProgress, InputAdornment } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-// import CircularProgress from "@mui/material/CircularProgress";
-import Collapse from "@mui/material/Collapse";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import TableSortLabel from "@mui/material/TableSortLabel";
 import TextField from "@mui/material/TextField";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
-import { alpha } from "@mui/material/styles";
-import { visuallyHidden } from "@mui/utils";
 import Fuse from "fuse.js";
 import PropTypes from "prop-types";
 import QRCode from "qrcode.react";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import edit from "../images/edit-button.svg";
-import { createItem, deleteItem, updateItem } from "../utils/api";
+import { createItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import AlertPopUp from "./AlertPopUp";
-import { styled } from "@mui/system";
-import { MenuItem } from "@mui/material";
+import AddItemDialog from "./AddItemDialog";
+import EditItemDialog from "./EditItemDialog";
+import TableRowComponent from "./TableRowComponent";
+import EnhancedTableHead from "./EnhancedTableHead";
+import EnhancedTableToolbar from "./EnhancedTableToolbar";
+import SetUrlDialog from "./SetUrlDialog";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -69,223 +53,6 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-const headCells = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Item Name",
-  },
-  {
-    id: "quantity",
-    numeric: true,
-    disablePadding: false,
-    label: "Quantity",
-  },
-  {
-    id: "department",
-    numeric: true,
-    disablePadding: false,
-    label: "Department",
-    disableSorting: true,
-  },
-  {
-    id: "description",
-    numeric: true,
-    disablePadding: false,
-    label: "Description",
-    disableSorting: true,
-  },
-];
-
-function EnhancedTableHead(props) {
-  const {
-    onSelectAllClick,
-    order,
-    orderBy,
-    numSelected,
-    rowCount,
-    onRequestSort,
-  } = props;
-  const createSortHandler = (property) => (event) => {
-    onRequestSort(event, property);
-  };
-
-  return (
-    <TableHead>
-      <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            color="primary"
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all items",
-            }}
-          />
-        </TableCell>
-        {headCells.map((headCell) => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "normal"}
-            sortDirection={orderBy === headCell.id ? order : false}
-          >
-            {headCell.disableSorting ? (
-              headCell.label
-            ) : (
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : "asc"}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === "desc"
-                      ? "sorted descending"
-                      : "sorted ascending"}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
-            )}
-          </TableCell>
-        ))}
-        {/* Add the "Set URL" column header */}
-        <TableCell align="right">Set URL</TableCell>
-      </TableRow>
-    </TableHead>
-  );
-}
-
-EnhancedTableHead.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
-  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
-  orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired,
-};
-
-function EnhancedTableToolbar(props) {
-  const {
-    numSelected,
-    selected,
-    inventoryItems,
-    setInventoryItems,
-    setQrcodes,
-    setFilteredItems,
-    setSelected,
-  } = props;
-
-  const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
-  const [searchTerm, setSearchTerm] = React.useState("");
-  
-  const handleDeleteDialogOpen = () => {
-    setOpenDeleteDialog(true);
-  }
-
-  const handleDeleteDialogClose = () => {
-    setOpenDeleteDialog(false);
-  }
-
-  const handleDeleteItem = async () => {
-    const itemsToDelete = [...selected]; // Copy selected items
-    setSelected([]); // Clear selection immediately
-
-    for (const item of itemsToDelete) {
-      await deleteItem(item, localStorage.getItem("token"));
-    }
-
-    // Filter out deleted items
-    const updatedItems = inventoryItems.filter(
-      (item) => !itemsToDelete.includes(item._id)
-    );
-
-    setInventoryItems(updatedItems);
-
-    // Remove QR codes for the deleted items
-    setQrcodes((prevQrcodes) => {
-      const newQrcodes = { ...prevQrcodes };
-      itemsToDelete.forEach((item) => {
-        delete newQrcodes[item];
-      });
-      return newQrcodes;
-    });
-
-    handleDeleteDialogClose();
-  };
-
-  return (
-    <Toolbar
-      sx={{
-        pl: { sm: 2 },
-        pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
-      }}
-    >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          variant="h6"
-          id="tableTitle"
-          component="div"
-        ></Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton onClick={handleDeleteDialogOpen}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : null
-      }
-      <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
-          Are you sure you want to delete?
-        </DialogTitle>
-        <center>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-            <button onClick={handleDeleteItem} color="primary" autoFocus>
-              Confirm
-            </button>
-            <button onClick={handleDeleteDialogClose} color="primary">
-              Cancel
-            </button>
-          </DialogActions>
-        </center>
-      </Dialog>
-    </Toolbar>
-  );
-}
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-  selected: PropTypes.array.isRequired,
-  inventoryItems: PropTypes.array.isRequired,
-  setInventoryItems: PropTypes.func.isRequired,
-  setQrcodes: PropTypes.func.isRequired,
-  setFilteredItems: PropTypes.func.isRequired,
-  setSelected: PropTypes.func.isRequired,
-};
-
 export default function EnhancedTable({ items }) {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("qunatity");
@@ -307,10 +74,10 @@ export default function EnhancedTable({ items }) {
   const [loading, setLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [formData, setFormData] = useState({
-    name: '',
-    quantity: '',
-    department: '',
-    description: ''
+    name: "",
+    quantity: "",
+    department: "",
+    description: "",
   });
 
   const fuse = new Fuse(inventoryItems, {
@@ -318,7 +85,7 @@ export default function EnhancedTable({ items }) {
     threshold: 0.3, // Adjust the threshold according to your needs
   });
 
- // Handle search change
+  // Handle search change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     if (e.target.value) {
@@ -447,11 +214,11 @@ export default function EnhancedTable({ items }) {
 
   const handleAddDialogOpen = () => {
     setOpenAddDialog(true);
-  }
+  };
 
   const handleAddDialogClose = () => {
     setOpenAddDialog(false);
-  }
+  };
 
   const handleDialogOpen = (item) => {
     setCurrentItem(item);
@@ -496,7 +263,6 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleExportClick = () => {
-    
     if (!inventoryItems || inventoryItems.length === 0) {
       alert("No inventory items to export.");
       return;
@@ -560,14 +326,6 @@ export default function EnhancedTable({ items }) {
     newWindow.document.close();
   };
 
-  const handleRowClick = (event, id) => {
-    event.stopPropagation();
-    setOpenRows((prevOpenRows) => ({
-      ...prevOpenRows,
-      [id]: !prevOpenRows[id],
-    }));
-  };
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -585,16 +343,16 @@ export default function EnhancedTable({ items }) {
 
   const handleClickRow = (event, id) => {
     const isOpen = openRows[id];
-    setOpenRows(prevOpenRows => ({
+    setOpenRows((prevOpenRows) => ({
       ...prevOpenRows,
-      [id]: !isOpen
+      [id]: !isOpen,
     }));
   };
 
   const handleClick = (event, id) => {
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-  
+
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
@@ -639,9 +397,15 @@ export default function EnhancedTable({ items }) {
   return (
     <div style={{ display: "flex" }}>
       {/* Sidebar */}
-      <div style={{ width: "10%", padding: "20px", display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          width: "10%",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-          
           <button onClick={() => handleAddDialogOpen()}>Add Item</button>
           <button onClick={handleExportClick}>Generate Report</button>
         </div>
@@ -658,8 +422,15 @@ export default function EnhancedTable({ items }) {
           }}
         />
       </div>
-  
-      <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
         {loading && (
           <Backdrop
@@ -699,84 +470,20 @@ export default function EnhancedTable({ items }) {
                     const isItemSelected = isSelected(row._id);
                     const labelId = `enhanced-table-checkbox-${index}`;
                     const isOpen = openRows[row._id];
-  
-                    return (
-                      <>
-                        <TableRow
-                          hover
-                          onClick={(event) => handleClickRow(event, row._id)}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={row._id}
-                          selected={isItemSelected}
-                          sx={{ cursor: "pointer" }}
-                        >
-                          <TableCell padding="checkbox">
-                          <Checkbox
-                            color="primary"
-                            checked={isItemSelected}
-                            onChange={(event) => handleClick(event, row._id)}
-                              inputProps={{
-                                "aria-labelledby": labelId,
-                              }}
-                              />
 
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="none"
-                          >
-                            {row.name}
-                          </TableCell>
-                          <TableCell align="right">{row.quantity}</TableCell>
-                          <TableCell align="right">{row.department}</TableCell>
-                          <TableCell align="right">{row.description}</TableCell>
-                          <TableCell align="right" style={{ width: "10%" }}>
-                            <IconButton
-                              aria-label="expand row"
-                              size="small"
-                              onClick={(event) => handleRowClick(event, row._id)}
-                            >
-                              {isOpen ? (
-                                <KeyboardArrowUpIcon />
-                              ) : (
-                                <KeyboardArrowDownIcon />
-                              )}
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            style={{ paddingBottom: 0, paddingTop: 0 }}
-                            colSpan={6}
-                          >
-                            <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                              <Box
-                                display="flex"
-                                justifyContent="center"
-                                alignItems="center"
-                                flexDirection="column"
-                                mt={1}
-                              >
-                                <Box mb={1}>{qrcodes[row._id]}</Box>
-                                <Button onClick={() => handleSetUrlClick(row)}>
-                                  Set URL
-                                </Button>
-                                <button onClick={() => handleDialogOpen(row)}>
-                                  <img
-                                    src={edit}
-                                    alt="Edit Item"
-                                    className="image"
-                                  />
-                                </button>
-                              </Box>
-                            </Collapse>
-                          </TableCell>
-                        </TableRow>
-                      </>
+                    return (
+                      <TableRowComponent
+                        handleClick={handleClick}
+                        handleDialogOpen={handleDialogOpen}
+                        handleRowClick={handleClickRow}
+                        handleSetUrlClick={handleSetUrlClick}
+                        isItemSelected={isItemSelected}
+                        isOpen={isOpen}
+                        labelId={labelId}
+                        qrcodes={qrcodes}
+                        row={row}
+                        key={row._id}
+                      />
                     );
                   })}
                   {emptyRows > 0 && (
@@ -802,190 +509,28 @@ export default function EnhancedTable({ items }) {
             />
           </Paper>
         </Box>
-        <Dialog open={openDialog} onClose={handleDialogClose}>
-          <DialogTitle>Edit Item</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Name"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={currentItem?.name}
-              onChange={(e) =>
-                setCurrentItem({ ...currentItem, name: e.target.value })
-              }
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              id="quantity"
-              label="Quantity"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={currentItem?.quantity}
-              onChange={(e) =>
-                setCurrentItem({ ...currentItem, quantity: e.target.value })
-              }
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              id="department"
-              label="Department"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={currentItem?.department}
-              onChange={(e) =>
-                setCurrentItem({ ...currentItem, department: e.target.value })
-              }
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              id="description"
-              label="Description"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={currentItem?.description}
-              onChange={(e) =>
-                setCurrentItem({ ...currentItem, description: e.target.value })
-              }
-            />
-          </DialogContent>
-          <DialogActions>
-            {updateItemLoading ? (
-              <CircularProgress size={50} />
-            ) : (
-              <>
-                <Button onClick={handleDialogClose}>Cancel</Button>
-                <Button onClick={handleDialogUpdate}>Update</Button>
-              </>
-            )}
-          </DialogActions>
-        </Dialog>
-        <Dialog open={urlDialogOpen} onClose={handleUrlDialogClose}>
-          <DialogTitle>Set URL</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="url"
-              label="URL"
-              type="text"
-              fullWidth
-              variant="standard"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleUrlDialogClose}>Cancel</Button>
-            <Button onClick={handleUrlUpdate}>Update URL</Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
-            Add Item
-          </DialogTitle>
-          <DialogContent>
-          <TextField
-              autoFocus
-              margin="dense"
-              label="Name"
-              variant="outlined"
-              color="primary"
-              type="text"
-              fullWidth
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              InputProps={{
-                style: {
-                  color: "black",
-                },
-              }}
-            />
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Quantity"
-              variant="outlined"
-              color="primary"
-              type="text"
-              fullWidth
-              id="quantity"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              InputProps={{
-                style: {
-                  color: "black",
-                },
-              }}
-            />
-            <StyledTextField
-              autoFocus
-              label="Department"
-              variant="outlined"
-              fullWidth
-              id="department"
-              select
-              name="department"
-              marginTop="20px"
-              value={formData.department}
-              onChange={handleInputChange}
-              InputProps={{
-                style: {
-                  color: "black",
-                },
-              }}
-            >
-              <MenuItem value="office">Office</MenuItem>
-              <MenuItem value="finance">Finance</MenuItem>
-              <MenuItem value="public outreach">Public Outreach</MenuItem>
-              <MenuItem value="lab">Lab</MenuItem>
-              <MenuItem value="operations">Operations</MenuItem>
-              <MenuItem value="shop">Shop</MenuItem>
-              <MenuItem value="fisheries">Fisheries</MenuItem>
-              <MenuItem value="it">It</MenuItem>
-            </StyledTextField>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Description"
-              variant="outlined"
-              color="primary"
-              type="text"
-              fullWidth
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              InputProps={{
-                style: {
-                  color: "black",
-                },
-              }}
-            />
-          </DialogContent>
-          <center>
-            <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-              <button onClick={handleAddItem} color="primary" autoFocus>
-                OK
-              </button>
-              <button onClick={handleAddDialogClose} color="primary">
-                Cancel
-              </button>
-            </DialogActions>
-          </center>
-        </Dialog>
+        <EditItemDialog
+          openDialog={openDialog}
+          handleDialogClose={handleDialogClose}
+          currentItem={currentItem}
+          setCurrentItem={setCurrentItem}
+          handleDialogUpdate={handleDialogUpdate}
+          updateItemLoading={updateItemLoading}
+        />
+        <SetUrlDialog
+          urlDialogOpen={urlDialogOpen}
+          handleUrlDialogClose={handleUrlDialogClose}
+          url={url}
+          setUrl={setUrl}
+          handleUrlUpdate={handleUrlUpdate}
+        />
+        <AddItemDialog
+          openAddDialog={openAddDialog}
+          handleAddDialogClose={handleAddDialogClose}
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleAddItem={handleAddItem}
+        />
       </div>
     </div>
   );
@@ -994,8 +539,3 @@ export default function EnhancedTable({ items }) {
 EnhancedTable.propTypes = {
   items: PropTypes.array.isRequired,
 };
-
-const StyledTextField = styled(TextField)({
-  marginTop: "10px",
-  marginBottom: "8px"
-});
