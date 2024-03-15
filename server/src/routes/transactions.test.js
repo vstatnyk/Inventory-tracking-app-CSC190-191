@@ -1,6 +1,6 @@
 const request = require("supertest");
 const express = require("express");
-const Transaction = require("../models/Transaction"); // adjust this path to your Transaction model
+const Transaction = require("../models/Transaction");
 
 jest.mock("../models/Transaction", () => ({
   find: jest.fn().mockReturnThis(),

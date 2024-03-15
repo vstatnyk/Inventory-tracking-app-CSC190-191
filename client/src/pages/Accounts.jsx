@@ -11,7 +11,6 @@ export default function Accounts() {
 
   useEffect(() => {
     setLoading(true);
-    console.log("Accounts.jsx: useEffect");
     const fetchUsers = async () => {
       try {
         const users = await getUsers(localStorage.getItem("token"));

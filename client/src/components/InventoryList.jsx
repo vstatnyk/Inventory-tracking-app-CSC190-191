@@ -58,7 +58,7 @@ export default function EnhancedTable({ items }) {
   const [orderBy, setOrderBy] = React.useState("qunatity");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [inventoryItems, setInventoryItems] = React.useState(items);
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);

@@ -20,25 +20,28 @@ const FilterMenu = ({ onFilterSubmit }) => {
       <Popup trigger={<button className="open-button">Open Filter Menu</button>} modal closeOnDocumentClick>
         {(close) => (
           <div className="filter-menu">
-            <label>Name:</label>
+            <label htmlFor='nameInput'>Name:</label>
             <input
               type="text"
+              id='nameInput'
               value={filterCriteria1 || ''}
               onChange={(e) => setFilterCriteria1(e.target.value)}
               className="filter-input"
             />
 
-            <label>Description:</label>
+            <label htmlFor='descriptionInput'>Description:</label>
             <input
               type="text"
+              id='descriptionInput'
               value={filterCriteria2 || ''}
               onChange={(e) => setFilterCriteria2(e.target.value)}
               className="filter-input"
             />
 
-            <label>Quantity:</label>
+            <label htmlFor='quantityInput'>Quantity:</label>
             <input
               type="text"
+              id='quantityInput'
               value={filterCriteria3 || ''}
               onChange={(e) => setFilterCriteria3(e.target.value)}
               className="filter-input"
