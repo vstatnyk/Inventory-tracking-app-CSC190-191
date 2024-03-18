@@ -79,14 +79,14 @@ const AddItemDialog = ({
             },
           }}
         >
-          <MenuItem value="office">Office</MenuItem>
-          <MenuItem value="finance">Finance</MenuItem>
-          <MenuItem value="public outreach">Public Outreach</MenuItem>
-          <MenuItem value="lab">Lab</MenuItem>
-          <MenuItem value="operations">Operations</MenuItem>
-          <MenuItem value="shop">Shop</MenuItem>
-          <MenuItem value="fisheries">Fisheries</MenuItem>
-          <MenuItem value="it">It</MenuItem>
+          <MenuItem value="Office">Office</MenuItem>
+          <MenuItem value="Finance">Finance</MenuItem>
+          <MenuItem value="Public Outreach">Public Outreach</MenuItem>
+          <MenuItem value="Lab">Lab</MenuItem>
+          <MenuItem value="Operations">Operations</MenuItem>
+          <MenuItem value="Shop">Shop</MenuItem>
+          <MenuItem value="Fisheries">Fisheries</MenuItem>
+          <MenuItem value="IT">It</MenuItem>
         </StyledTextField>
         <TextField
           autoFocus
