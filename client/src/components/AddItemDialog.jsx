@@ -64,7 +64,6 @@ const AddItemDialog = ({
           }}
         />
         <StyledTextField
-          autoFocus
           label="Department"
           variant="outlined"
           fullWidth

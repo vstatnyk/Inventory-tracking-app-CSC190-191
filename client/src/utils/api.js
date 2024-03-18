@@ -91,6 +91,15 @@ export const getUsers = async (token) => {
   return response.data;
 };
 
+export const getUser = async (token) => {
+  const response = await axios.get(`${BASE_URL}/users/account`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
 export const registerUser = async (
   email,
   password,
