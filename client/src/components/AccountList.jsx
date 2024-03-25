@@ -1,4 +1,4 @@
-import { MenuItem, TextField } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem, Checkbox, OutlinedInput, ListItemText, Button } from '@mui/material';
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useEffect, useState } from "react";
@@ -24,7 +24,7 @@ export default function AccountList({ accounts_p }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alert, setAlert] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [departmentFilter, setDepartmentFilter] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState([]);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
 
@@ -155,6 +155,20 @@ export default function AccountList({ accounts_p }) {
     }));
   };
 
+  const handleChangeDepartmentFilter = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setDepartmentFilter(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
+  const handleClearDepartmentFilter = () => {
+    setDepartmentFilter([]);
+  };
+
   const mapAccessLevelToString = (accessLevel) => {
     switch (accessLevel) {
       case 1:
@@ -187,30 +201,34 @@ export default function AccountList({ accounts_p }) {
     }
   };
 
+  const departmentOptions = ["Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
+
   return (
     <>
       <AddAccountDialog setAccounts={setAccounts}></AddAccountDialog>
       <div
         style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}
       >
-        <TextField
-          select
-          label="Filter by Department"
-          value={departmentFilter}
-          onChange={(e) => setDepartmentFilter(e.target.value)}
-          variant="outlined"
-          style={{ width: "200px" }}
-        >
-          <MenuItem value="">All Departments</MenuItem>
-          <MenuItem value="Office">Office</MenuItem>
-          <MenuItem value="Finance">Finance</MenuItem>
-          <MenuItem value="Public Outreach">Public Outreach</MenuItem>
-          <MenuItem value="Lab">Lab</MenuItem>
-          <MenuItem value="Operations">Operations</MenuItem>
-          <MenuItem value="Shop">Shop</MenuItem>
-          <MenuItem value="Fisheries">Fisheries</MenuItem>
-          <MenuItem value="IT">IT</MenuItem>
-        </TextField>
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <InputLabel id="department-filter-selector-label">Filter by Departments</InputLabel>
+          <Select
+            labelId="department-filter-selector-label"
+            id="department-filter-selector"
+            multiple
+            value={departmentFilter}
+            onChange={handleChangeDepartmentFilter}
+            input={<OutlinedInput label="Filter by Department" />}
+            renderValue={(selected) => selected.join(', ')}
+          >
+            {departmentOptions.map((department) => (
+            <MenuItem key={department} value={department}>
+              <Checkbox checked={departmentFilter.indexOf(department) > -1} />
+              <ListItemText primary={department} />
+            </MenuItem>
+          ))}
+          </Select>
+        </FormControl>
+        <Button variant="outlined" onClick={handleClearDepartmentFilter} className="clearButton">Clear</Button>
       </div>
       {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
       {loading && (
@@ -237,12 +255,13 @@ export default function AccountList({ accounts_p }) {
       >
         {accounts
           .filter((account) => {
-            const included =
-              !departmentFilter ||
-              (account.department &&
-                account.department.includes(departmentFilter));
-            console.log("Filtering:", account.name, "Included:", included);
-            return included;
+            if (!departmentFilter || departmentFilter.length === 0) {
+              return true; // Show all accounts if no filter is selected
+            }
+            // Adjust the logic based on your account.department structure
+            // This assumes account.department could be an array or a single value
+            const accountDepartments = Array.isArray(account.department) ? account.department : [account.department];
+            return departmentFilter.some(filter => accountDepartments.includes(filter));
           })
           .map((account) => (
             <SwiperSlide key={account.uid}>

@@ -245,3 +245,8 @@ button:not(.MuiIconButton-root) {
   right: 20px; /* Adjust as needed */
   z-index: 1000; /* Ensure it's above other content */
 }
+
+button.clearButton {
+  color: white;
+  top: 7px;
+}
