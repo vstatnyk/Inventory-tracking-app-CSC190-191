@@ -312,12 +312,15 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleExportClick = () => {
-    if (!inventoryItems || inventoryItems.length === 0) {
-      alert("No inventory items to export.");
+    if (!selected || selected.length === 0) {
+      alert("No items selected to export.");
       return;
     }
-
-    const csv = exportToCSV(inventoryItems);
+  
+    const selectedItemsData = inventoryItems.filter((item) =>
+      selected.includes(item._id)
+    );
+    const csv = exportToCSV(selectedItemsData);
     const rows = csv.split("\n");
     const header = rows[0]
       .split(",")
@@ -333,14 +336,14 @@ export default function EnhancedTable({ items }) {
             .join("")}</tr>`
       )
       .join("");
-
+  
     const fullHtml = `<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
-
+  
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-
-    const downloadButton = `<a href="${url}" download="inventory.csv" class="download-button">Download CSV</a>`;
-
+  
+    const downloadButton = `<a href="${url}" download="selected_items.csv" class="download-button">Download CSV</a>`;
+  
     const styles = `
       <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -369,11 +372,12 @@ export default function EnhancedTable({ items }) {
         }
       </style>
     `;
-
+  
     const newWindow = window.open();
     newWindow.document.write(styles + fullHtml + downloadButton);
     newWindow.document.close();
   };
+  
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
