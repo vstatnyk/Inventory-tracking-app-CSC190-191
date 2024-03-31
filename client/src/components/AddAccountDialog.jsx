@@ -118,6 +118,32 @@ const AddAccountDialog = ({ setAccounts }) => {
           </DialogTitle>
           <DialogContent>
             <StyledTextField
+              label="First Name"
+              variant="outlined"
+              color="primary"
+              id="first"
+              name="first"
+              value={formData.first}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}/>
+            <StyledTextField
+              label="Last Name"
+              variant="outlined"
+              color="primary"
+              id="last"
+              name="last"
+              value={formData.last}
+              onChange={handleInputChange}
+              InputProps={{
+                style: {
+                  color: "white",
+                },
+              }}/>
+            <StyledTextField
               label="Email"
               variant="outlined"
               color="primary"
