@@ -10,67 +10,67 @@ import { getItem } from "../utils/api";
 
 const CheckInOut = () => {
   const [Item, setItem] = useState(null);
+  const [Quantity, setQuantity] = useState(null);
+
+  const handleQuantityChange = (newValue) => {
+    setQuantity(newValue);
+  };
 
   const { id } = useParams();
-  console.log(id);
-  const item = getItem(
-    "65eb4f737978686763768115",
-    localStorage.getItem("token")
-  );
-  console.log(item);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      // console.log(localStorage.getItem("token"));
-      try {
-        const item = await getItem(
-          "65eb4f737978686763768115",
-          localStorage.getItem("token")
-        );
-        console.log(item);
-        setItem(item);
-      } catch (error) {
-        console.error("Error fetching items:", error.message);
-      }
+    const fetchData = async () => {
+      console.log(id);
+      const data = await getItem(id, localStorage.getItem("token"));
+      setItem(data);
+      setQuantity(data.quantity);
+      console.log(data);
     };
-    fetchItems();
-    // console.log(id);
-  }, [id]);
+
+    fetchData();
+  }, [id]); // Only re-run the effect if `id` changes
 
   return (
     <>
       <Nav></Nav>
-      name: Testing description: Testing Description quantity: 65 __v: 0
-      <Card
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          margin: "auto",
-          width: 600,
-          maxWidth: "75%",
-          border: "1px solid black",
-          height: 500,
-        }}
-      >
-        <CardMedia sx={{ height: 300 }} image="/react.svg" title="images" />
-        <CardContent>
-          {/* {console.log(Item)} */}
-          <div>{Item.name}</div>
-          <div>{Item.description}</div>
-          <div>{Item.quantity}</div>
-        </CardContent>
-        <CardActions sx={{ margin: "auto" }}>
-          <CheckInOutDialog
-            buttonName="Check In"
-            item={Item}
-          ></CheckInOutDialog>
-          <CheckInOutDialog
-            buttonName="Check Out"
-            item={Item}
-          ></CheckInOutDialog>
-        </CardActions>
-      </Card>
+      {/* name: Testing description: Testing Description quantity: 65 __v: 0 */}
+      {Item && (
+        <Card
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            margin: "auto",
+            width: 600,
+            maxWidth: "75%",
+            border: "1px solid black",
+            height: 500,
+          }}
+        >
+          <CardMedia sx={{ height: 300 }} image="/react.svg" title="images" />
+          <CardContent>
+            <div>{Item.name}</div>
+            <div>{Item.description}</div>
+            <div>{Quantity}</div>
+          </CardContent>
+          <CardActions sx={{ margin: "auto" }}>
+            <CheckInOutDialog
+              buttonName="Check In"
+              item={Item}
+              quantity={Quantity}
+              handleQuantityChange={handleQuantityChange}
+              checkIn={true}
+            ></CheckInOutDialog>
+            <CheckInOutDialog
+              buttonName="Check Out"
+              item={Item}
+              quantity={Quantity}
+              handleQuantityChange={handleQuantityChange}
+              checkIn={false}
+            ></CheckInOutDialog>
+          </CardActions>
+        </Card>
+      )}
     </>
   );
 };

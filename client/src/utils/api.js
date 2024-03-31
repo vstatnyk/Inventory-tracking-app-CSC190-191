@@ -21,6 +21,7 @@ export const getItem = async (id, token) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  console.log(response.data);
   return response.data;
 };
 

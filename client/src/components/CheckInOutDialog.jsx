@@ -32,18 +32,55 @@ function MyDialog(props) {
     setOpen(true);
   };
 
-  const handleSubmit = async () => {
+  const handleCheckIn = async () => {
     if (quantity >= 0 && quantity !== "") {
+      const newQuantity = props.item.quantity + Number(quantity);
+      setQuantity(0);
       try {
         await updateItem(
           props.item._id,
           props.item.name,
           props.item.description,
-          props.item.quantity + Number(quantity),
+          newQuantity,
           props.item.department,
           localStorage.getItem("token")
         );
-        props.item.quantity = props.item.quantity + Number(quantity);
+        // props.quantity = props.item.quantity + Number(quantity);
+        props.handleQuantityChange(newQuantity);
+        // props.quantity = props.quantity + Number(quantity);
+
+        setAlert(["success", "success"]);
+        setShowAlert(true);
+      } catch (error) {
+        setAlert(["Error updating item: " + error.message, "error"]);
+        setShowAlert(true);
+        console.error("Error updating item:", error.message);
+      }
+      setOpen(false);
+    } else {
+      setAlert(["Quantity must not be empty and be greater than 0", "info"]);
+      setShowAlert(true);
+      // alert();
+    }
+  };
+
+  const handleCheckOut = async () => {
+    if (quantity >= 0 && quantity !== "") {
+      const newQuantity = props.item.quantity - Number(quantity);
+      setQuantity(0);
+      try {
+        await updateItem(
+          props.item._id,
+          props.item.name,
+          props.item.description,
+          newQuantity,
+          props.item.department,
+          localStorage.getItem("token")
+        );
+        // props.quantity = props.item.quantity + Number(quantity);
+        props.handleQuantityChange(newQuantity);
+        // props.quantity = props.quantity + Number(quantity);
+        // setQuantity(0);
 
         setAlert(["success", "success"]);
         setShowAlert(true);
@@ -73,7 +110,7 @@ function MyDialog(props) {
           <DialogContentText>
             How much of this item would you like to {props.buttonName}?
             <br />
-            Available quantity: {props.item.quantity}
+            Available quantity: {props.quantity}
           </DialogContentText>
           <br />
           <StyledTextField
@@ -95,9 +132,15 @@ function MyDialog(props) {
           <button onClick={handleClose} color="primary">
             Cancel
           </button>
-          <button onClick={handleSubmit} color="primary" autoFocus>
-            OK
-          </button>
+          {props.checkIn ? (
+            <button onClick={handleCheckIn} color="primary" autoFocus>
+              OK
+            </button>
+          ) : (
+            <button onClick={handleCheckOut} color="primary" autoFocus>
+              OK
+            </button>
+          )}
         </DialogActions>
       </Dialog>
       {showAlert && (
@@ -112,6 +155,9 @@ function MyDialog(props) {
 MyDialog.propTypes = {
   buttonName: PropTypes.string.isRequired,
   item: PropTypes.object.isRequired,
+  quantity: PropTypes.number.isRequired,
+  handleQuantityChange: PropTypes.func.isRequired,
+  checkIn: PropTypes.bool.isRequired,
 };
 
 // custom components for this file
