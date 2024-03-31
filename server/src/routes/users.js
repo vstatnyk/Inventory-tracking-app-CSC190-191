@@ -149,14 +149,14 @@ router.put(
     const { uid } = req.params.uid;
     const { email, password, role, department, accountId } = req.body;
 
-    let Department = department.split(",");
+    //let Department = department.split(",");
     console.log(accountId);
-    console.log(Department);
+    console.log(department);
 
     try {
       await Account.findOneAndUpdate(
         { uid: accountId }, // Filter
-        { $set: { department: Department } }, // Update
+        { $set: { department: department } }, // Update
         { new: true } // Options
       );
       console.log("Account updated successfully in MongoDB");

@@ -27,6 +27,7 @@ export default function AccountList({ accounts_p }) {
   const [departmentFilter, setDepartmentFilter] = useState([]);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
+  const [currentDepartmentList, newDepartmentList] = useState([]);  
 
   useEffect(() => {
     if (showAlert) {
@@ -74,9 +75,14 @@ export default function AccountList({ accounts_p }) {
       return { ...inputValues };
     });
     changeEditState(id);
+    clearNewDepartmentList();
   };
 
   const handleInputChange = (property, value, account) => {
+    if (property === 'department') {
+        // No Typing allowed in department box
+        return;
+      }
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
       [`${property}${account.uid}`]: value,
@@ -105,6 +111,7 @@ export default function AccountList({ accounts_p }) {
     setLoading(false);
     setAlert(["Account updated successfully", "success"]);
     setShowAlert(true);
+    clearNewDepartmentList();
   };
 
   const handleAddAccount = async () => {
@@ -155,6 +162,15 @@ export default function AccountList({ accounts_p }) {
     }));
   };
 
+  //reflects checked departments in department box
+const handleChangeDepartment = (id) => {
+    console.dir(currentDepartmentList)
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [`department${id}`]: currentDepartmentList,
+    }));
+  };
+
   const handleChangeDepartmentFilter = (event) => {
     const {
       target: { value },
@@ -168,6 +184,21 @@ export default function AccountList({ accounts_p }) {
   const handleClearDepartmentFilter = () => {
     setDepartmentFilter([]);
   };
+
+  const handleUpdateDepartment = (event) => {
+    const {
+      target: { value },
+    } = event;
+    newDepartmentList(
+      // On autofill we get a stringified value.
+      typeof value === 'string' ? value.split(',') : value,
+    );
+    
+  };
+    // clears department checklist
+  const clearNewDepartmentList = () => {
+    newDepartmentList([]);
+  }
 
   const mapAccessLevelToString = (accessLevel) => {
     switch (accessLevel) {
@@ -201,7 +232,7 @@ export default function AccountList({ accounts_p }) {
     }
   };
 
-  const departmentOptions = ["Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
+  const departmentOptions = ["none","Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
 
   return (
     <>
@@ -345,6 +376,35 @@ export default function AccountList({ accounts_p }) {
                     {property !== "customClaims" && <br />}
                   </div>
                 ))}
+                {editState[account.uid] &&  (
+                    <div className='swiper-no-swiping' //prevents swiper from listening to mouse for swipe
+                    style={{ display: "flex", justifyContent: "center", margin: "5px" }}
+                    >
+                    <FormControl sx={{ width: 200 }} size='small'>
+                        <InputLabel id="department-change-label">Change Department</InputLabel>
+                        <Select
+                        labelId="department-change-label"
+                        id="department-change"
+                        multiple
+                        value={currentDepartmentList}
+                        onChange={handleUpdateDepartment}
+                        onClose={(e) =>
+                            handleChangeDepartment(account.uid)
+                        }
+                        input={<OutlinedInput label="Change Department" />}
+                        autoWidth
+                        renderValue={(selected) => selected.join(', ')}
+                        >
+                        {departmentOptions.map((department) => (
+                        <MenuItem key={department} value={department}>
+                            <Checkbox checked={currentDepartmentList.indexOf(department) > -1} />
+                            <ListItemText primary={department} />
+                        </MenuItem>
+                        ))}
+                        </Select>
+                    </FormControl>
+                    </div>
+                )}
                 <div className="accountRow">
                   Role:{" "}
                   {account.customClaims &&
