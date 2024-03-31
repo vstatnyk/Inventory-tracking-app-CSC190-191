@@ -241,10 +241,10 @@ const handleChangeDepartment = (id) => {
         style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}
       >
         <FormControl sx={{ m: 1, width: 300 }}>
-          <InputLabel id="department-filter-selector-label">Filter by Departments</InputLabel>
+          <InputLabel id="account-department-filter-selector-label">Filter by Departments</InputLabel>
           <Select
-            labelId="department-filter-selector-label"
-            id="department-filter-selector"
+            labelId="account-department-filter-selector-label"
+            id="account-department-filter-selector"
             multiple
             value={departmentFilter}
             onChange={handleChangeDepartmentFilter}

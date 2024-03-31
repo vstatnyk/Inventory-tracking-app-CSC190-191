@@ -1,5 +1,5 @@
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { CircularProgress, InputAdornment } from "@mui/material";
+import { CircularProgress, InputAdornment, FormControl, InputLabel, Select, MenuItem, Checkbox, OutlinedInput, ListItemText, Button } from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -60,6 +60,7 @@ export default function EnhancedTable({ items }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [inventoryItems, setInventoryItems] = React.useState(items);
+  const [departmentFilter, setDepartmentFilter] = useState([]);
   const [qrcodes, setQrcodes] = React.useState({});
   const [openRows, setOpenRows] = React.useState(false);
   const [openDialog, setOpenDialog] = React.useState(false);
@@ -84,7 +85,7 @@ export default function EnhancedTable({ items }) {
   });
 
   const fuse = new Fuse(inventoryItems, {
-    keys: ["name"], // Add the keys you want to include in the search
+    keys: ["name", "department"], // Add the keys you want to include in the search
     threshold: 0.3, // Adjust the threshold according to your needs
   });
 
@@ -97,6 +98,44 @@ export default function EnhancedTable({ items }) {
     } else {
       setFilteredItems(inventoryItems);
     }
+  };
+  
+  const handleChangeDepartmentFilter = (event) => {
+    const {
+      target: { value },
+    } = event;
+    
+    const selectedDepartments = typeof value === 'string' ? value.split(',') : value;
+  
+    let filteredItems = inventoryItems;
+  
+    if (selectedDepartments.length > 0) {
+
+      const searchResults = selectedDepartments.map(department => {
+        return fuse.search(department).map(({ item }) => item);
+      });
+      
+      const mergedResults = [].concat(...searchResults);
+      
+      const uniqueItems = Array.from(new Set(mergedResults));
+  
+      filteredItems = uniqueItems;
+    }
+  
+    if (searchTerm) {
+      const result = fuse.search(searchTerm);
+      filteredItems = result.map(({ item }) => item).filter(item => {
+
+        if (selectedDepartments.length > 0) {
+          return filteredItems.includes(item);
+        }
+
+        return true;
+      });
+    }
+  
+    setFilteredItems(filteredItems);
+    setDepartmentFilter(selectedDepartments);
   };
 
   useEffect(() => {
@@ -447,34 +486,64 @@ export default function EnhancedTable({ items }) {
     [order, orderBy, page, rowsPerPage, filteredItems]
   );
 
+  const departmentOptions = ["Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
+
   return (
-    <div style={{ display: "flex" }}>
-      {/* Sidebar */}
-      <div
-        style={{
-          width: "10%",
-          padding: "20px",
-          display: "flex",
-          flexDirection: "column",
+<div style={{ display: "flex" }}>
+  {/* Sidebar */}
+  <div
+    style={{
+      width: "10%",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
+      <button onClick={() => handleAddDialogOpen()}>Add Item</button>
+      <button onClick={handleExportClick}>Generate Report</button>
+    </div>
+
+    {/* Adjust the style here to define a consistent width */}
+    <div style={{ marginBottom: "20px" }}>
+      <TextField
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearchChange}
+        label="Filter By Name"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <FilterListIcon />
+            </InputAdornment>
+          ),
         }}
-      >
-        <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-          <button onClick={() => handleAddDialogOpen()}>Add Item</button>
-          <button onClick={handleExportClick}>Generate Report</button>
-        </div>
-        <TextField
-          value={searchTerm}
-          onChange={handleSearchChange}
-          label="Filter By Name"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <FilterListIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </div>
+      />
+    </div>
+
+    {/* Adjust the style here to ensure consistency with the TextField */}
+    <div style={{ width: '100%' }}> {/* Make sure this matches the TextField's width */}
+      <FormControl fullWidth sx={{ m: 0 }}>
+        <InputLabel id="item-department-filter-selector-label">Filter by Departments</InputLabel>
+        <Select
+          labelId="item-department-filter-selector-label"
+          id="item-department-filter-selector"
+          multiple
+          value={departmentFilter}
+          onChange={handleChangeDepartmentFilter}
+          input={<OutlinedInput label="Filter by Department" />}
+          renderValue={(selected) => selected.join(', ')}
+        >
+          {departmentOptions.map((department) => (
+          <MenuItem key={department} value={department}>
+            <Checkbox checked={departmentFilter.indexOf(department) > -1} />
+            <ListItemText primary={department} />
+          </MenuItem>
+        ))}
+        </Select>
+      </FormControl>
+    </div>
+  </div>
 
       <div
         style={{
