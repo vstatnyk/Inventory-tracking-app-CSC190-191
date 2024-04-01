@@ -24,6 +24,8 @@ import TableRowComponent from "./TableRowComponent";
 import EnhancedTableHead from "./EnhancedTableHead";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import SetUrlDialog from "./SetUrlDialog";
+import QRCodeSVG from 'qrcode-svg';
+
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -221,16 +223,59 @@ export default function EnhancedTable({ items }) {
     return <QRCode value={qrCodeString} />;
   };
 
-  const handleDownloadQRCode = (item) => {
-    const qrCodeSvg = generateQRCode(item, item._id);
-    const dataUrl = qrCodeSvg.toDataURL("image/png");
+  
+  const generateQRSVG = (qrCodeString) => {
+    // Log the QR code string to check its content and type
+    console.log("QR Code String:", qrCodeString);
 
-    // Trigger download
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `qrcode_${item.name}.png`;
-    link.click();
-  };
+    // Create QRCodeSVG instance
+    const qrCodeSVG = new QRCodeSVG({
+        content: qrCodeString, // Make sure qrCodeString is a string
+        container: "svg-viewbox",
+        padding: 0,
+        width: 200,
+        height: 200
+    });
+
+    // Get SVG string representation
+    return qrCodeSVG.svg();
+};
+
+const handleDownloadQRCode = (item) => {
+    try {
+        // Generate QR code string using item and item._id
+        const qrCodeString = generateQRCode(item, item._id);
+
+        // Ensure qrCodeString is a string before proceeding
+        if (typeof qrCodeString !== "string") {
+            throw new Error("QR code string is not a string.");
+        }
+
+        // Generate SVG string from QR code string
+        const svgString = generateQRSVG(qrCodeString);
+
+        // Create temporary DOM element to hold the SVG
+        const div = document.createElement('div');
+        div.innerHTML = svgString;
+
+        // Get the SVG element
+        const qrCodeSvg = div.firstChild;
+
+        // Serialize SVG to XML string
+        const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
+
+        // Create data URL for SVG
+        const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
+
+        // Trigger download
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `qrcode_${item.name}.svg`;
+        link.click();
+    } catch (error) {
+        console.error("Error occurred while downloading QR code:", error);
+    }
+};
 
   const handlePrintQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
@@ -499,10 +544,14 @@ export default function EnhancedTable({ items }) {
       flexDirection: "column",
     }}
   >
-    <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-      <button onClick={() => handleAddDialogOpen()}>Add Item</button>
-      <button onClick={handleExportClick}>Generate Report</button>
+    <div style={{ marginBottom: "10px" }}>
+    <div style={{ display: "flex", gap: "10px" }}>
+        <button onClick={() => handleAddDialogOpen()}>Add Item</button>
+        <button onClick={handleExportClick}>Generate Report</button>
     </div>
+    <button onClick={handleDownloadQRCode}>Download selected QR</button>
+</div>
+
 
     {/* Adjust the style here to define a consistent width */}
     <div style={{ marginBottom: "20px" }}>
