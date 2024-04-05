@@ -608,6 +608,7 @@ const handleDownloadQRCode = (item) => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          marginRight: 20,
         }}
       >
         {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
