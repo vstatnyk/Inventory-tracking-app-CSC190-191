@@ -139,6 +139,13 @@ export default function EnhancedTable({ items }) {
   };
 
   useEffect(() => {
+	const cookieValue = localStorage.getItem("rowsPerPage");
+	if (cookieValue) {
+		setRowsPerPage(cookieValue);
+	}
+  }, []);
+
+  useEffect(() => {
     if (showAlert) {
       setTimeout(() => {
         setShowAlert(false);
@@ -467,6 +474,7 @@ export default function EnhancedTable({ items }) {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+	localStorage.setItem("rowsPerPage", event.target.value);
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
