@@ -191,3 +191,12 @@ export const getTransactions = async (token) => {
   });
   return response.data;
 };
+
+export const deleteAllTransactions = async (token) => {
+  const response = await axios.delete(`${BASE_URL}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
