@@ -6,12 +6,15 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
 import { deleteItem } from "../utils/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function EnhancedTableToolbar(props) {
   const {
@@ -22,6 +25,16 @@ export default function EnhancedTableToolbar(props) {
     setQrcodes,
     setSelected,
   } = props;
+
+  const [selectedNames, setSelectedNames] = useState([]);
+
+  useEffect(() => {
+    const selectedItemsNames = selected.map(id => 
+      inventoryItems.find(item => item._id === id)?.name
+    );
+    setSelectedNames(selectedItemsNames);
+  }, [selected, inventoryItems]);
+  
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -104,6 +117,13 @@ export default function EnhancedTableToolbar(props) {
           Are you sure you want to delete?
         </DialogTitle>
         <center>
+        <List>
+          {selectedNames.map((name) => (
+            <ListItem key={name}>
+              <ListItemText primary={`Item Name: ${name}`} />
+            </ListItem>
+          ))}
+        </List>
           <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
             <button onClick={handleDeleteItem} color="primary" autoFocus>
               Confirm
