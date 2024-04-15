@@ -258,41 +258,33 @@ export default function EnhancedTable({ items }) {
     return qrCodeSVG.svg();
   };
 
-  const handleDownloadQRCode = (item) => {
-    try {
-      // Generate QR code string using item and item._id
-      const qrCodeString = generateQRCode(item, item._id);
 
-      // Ensure qrCodeString is a string before proceeding
-      if (typeof qrCodeString !== "string") {
-        throw new Error("QR code string is not a string.");
-      }
+const handleDownloadQRCode = (qrCodeString, filename) => {
+  // Create a new image element
+  const img = new Image();
 
-      // Generate SVG string from QR code string
-      const svgString = generateQRSVG(qrCodeString);
+  // Set the source of the image to the QR code data
+  img.src = `data:image/svg+xml;base64,${btoa(qrCodeString)}`;
 
-      // Create temporary DOM element to hold the SVG
-      const div = document.createElement("div");
-      div.innerHTML = svgString;
+  // Create a link element
+  const link = document.createElement('a');
 
-      // Get the SVG element
-      const qrCodeSvg = div.firstChild;
+  // Set the href of the link to the data URL of the QR code image
+  link.href = img.src;
 
-      // Serialize SVG to XML string
-      const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
+  // Set the download attribute of the link to the filename
+  link.download = filename;
 
-      // Create data URL for SVG
-      const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
+  // Append the link to the document body
+  document.body.appendChild(link);
 
-      // Trigger download
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = `qrcode_${item.name}.svg`;
-      link.click();
-    } catch (error) {
-      console.error("Error occurred while downloading QR code:", error);
-    }
-  };
+  // Click the link programmatically to trigger the download
+  link.click();
+
+  // Remove the link from the document body
+  document.body.removeChild(link);
+};
+
 
   const handlePrintQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
@@ -563,14 +555,43 @@ export default function EnhancedTable({ items }) {
   ];
 
   return (
-    <div style={{ display: "flex" }}>
-      {/* Sidebar */}
-      <div
-        style={{
-          width: "10%",
-          padding: "20px",
-          display: "flex",
-          flexDirection: "column",
+
+<div style={{ display: "flex" }}>
+  {/* Sidebar */}
+  <div
+    style={{
+      width: "10%",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+    }}
+  >
+    <div style={{ marginBottom: "10px" }}>
+    <div style={{ display: "flex", gap: "10px" }}>
+        <button onClick={() => handleAddDialogOpen()}>Add Item</button>
+        <button onClick={handleExportClick}>Generate Report</button>
+    </div>
+    <div style={{ display: "flex", marginTop: "10px" }}>
+        <button onClick={handleDownloadQRCode}>Download selected</button>
+        <button onClick={handlePrintQRCode} style={{ marginLeft: "10px" }}>Print selected</button>
+    </div>
+</div>
+
+
+    {/* Adjust the style here to define a consistent width */}
+    <div style={{ marginBottom: "20px" }}>
+      <TextField
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearchChange}
+        label="Filter By Name"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <FilterListIcon />
+            </InputAdornment>
+          ),
+
         }}
       >
         <div style={{ marginBottom: "10px" }}>
