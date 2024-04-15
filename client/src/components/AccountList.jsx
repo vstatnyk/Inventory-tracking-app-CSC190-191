@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/grid";
 import "swiper/css/pagination";
-import { Grid, Pagination } from "swiper/modules";
+import "swiper/css/navigation";
+import { Grid, Pagination, Navigation} from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import AddAccountDialog from "../components/AddAccountDialog";
 import edit from "../images/edit-button.svg";
@@ -270,20 +271,46 @@ const handleChangeDepartment = (id) => {
           <CircularProgress color="inherit" />
         </Backdrop>
       )}
-      <Swiper
-        slidesPerView={3}
+      <Swiper 
+      // adjust number of slides in view
+      // accoring to window size
+        breakpoints={{
+            640:{
+                slidesPerView: 2,
+                spaceBetween:5,
+            },
+            768: {
+                slidesPerView: 2,
+                spaceBetween:5,  
+            },
+            992: {
+                slidesPerView: 2.5,
+                spaceBetween: 5,
+
+                    
+            },
+            1200: {
+                slidesPerView: 3,
+                spaceBetween:5,   
+            },
+            1700: {
+                slidesPerView: 4,
+                spaceBetween:5,   
+            }
+        }}        
         grid={{
-          rows: 2,
-          fill: "row",
+            rows: 2,
+            fill: "row",
         }}
-        spaceBetween={15}
-        modules={[Grid, Pagination]}
+        grabCursor={true}
+        modules={[Grid, Pagination, Navigation]}
+        navigation={true}
         pagination={{
           dynamicBullets: true,
           clickable: true,
-        }}
+        }}        
         className="accountSwiper"
-      >
+        >
         {accounts
           .filter((account) => {
             if (!departmentFilter || departmentFilter.length === 0) {
@@ -295,7 +322,7 @@ const handleChangeDepartment = (id) => {
             return departmentFilter.some(filter => accountDepartments.includes(filter));
           })
           .map((account) => (
-            <SwiperSlide key={account.uid}>
+            <SwiperSlide key={account.uid} className='swiperSlide'>
               <div className="account">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"

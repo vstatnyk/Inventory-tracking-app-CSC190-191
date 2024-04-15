@@ -23,7 +23,7 @@ const CheckInOut = () => {
       console.log(id);
       const data = await getItem(id, localStorage.getItem("token"));
       setItem(data);
-      setQuantity(data.quantity);
+      setQuantity(data.quantity + " " + data.unit);
       console.log(data);
     };
 

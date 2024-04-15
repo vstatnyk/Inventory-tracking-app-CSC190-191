@@ -43,6 +43,7 @@ function MyDialog(props) {
           props.item.description,
           newQuantity,
           props.item.department,
+          props.item.unit,
           localStorage.getItem("token")
         );
         // props.quantity = props.item.quantity + Number(quantity);
@@ -75,6 +76,7 @@ function MyDialog(props) {
           props.item.description,
           newQuantity,
           props.item.department,
+          props.item.unit,
           localStorage.getItem("token")
         );
         // props.quantity = props.item.quantity + Number(quantity);

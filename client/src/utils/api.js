@@ -30,6 +30,7 @@ export const createItem = async (
   description,
   quantity,
   department,
+  unit,
   token
 ) => {
   const response = await axios.post(
@@ -39,6 +40,7 @@ export const createItem = async (
       description: description,
       quantity: quantity,
       department: department,
+      unit: unit,
     },
     {
       headers: {
@@ -55,6 +57,7 @@ export const updateItem = async (
   description,
   quantity,
   department,
+  unit,
   token
 ) => {
   const response = await axios.put(
@@ -64,6 +67,7 @@ export const updateItem = async (
       description: description,
       quantity: quantity,
       department: department,
+      unit: unit,
     },
     {
       headers: {
@@ -185,6 +189,15 @@ export const updateUser = async (
 
 export const getTransactions = async (token) => {
   const response = await axios.get(`${BASE_URL}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const deleteAllTransactions = async (token) => {
+  const response = await axios.delete(`${BASE_URL}/transactions`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

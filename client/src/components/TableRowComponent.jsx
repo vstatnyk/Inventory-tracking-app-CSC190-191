@@ -1,14 +1,14 @@
-import {
-  TableRow,
-  TableCell,
-  Checkbox,
-  IconButton,
-  Collapse,
-  Box,
-  Button,
-} from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Collapse,
+  IconButton,
+  TableCell,
+  TableRow,
+} from "@mui/material";
 import PropTypes from "prop-types";
 import edit from "../images/edit-button.svg";
 
@@ -73,16 +73,24 @@ const TableRowComponent = ({
               mt={1}
             >
               <Box mb={1}>{qrcodes[row._id]}</Box>
-              <Button onClick={() => handleSetUrlClick(row)}>Set URL</Button>
-              <Button onClick={() => handleDialogOpen(row)}>
-                <img src={edit} alt="Edit Item" className="image" />
-              </Button>
-              <Button onClick={() => handlePrintQRCode(row)}>
-                Print QR Code
-              </Button>
-              <Button onClick={() => handleDownloadQRCode(row)}>
-                Download QR Code
-              </Button>
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                flexDirection="row"
+                mt={1}
+              >
+                <button onClick={() => handleSetUrlClick(row)}>Set URL</button>
+                <button onClick={() => handleDialogOpen(row)}>
+                  <img src={edit} alt="Edit Item" className="image" />
+                </button>
+                <button onClick={() => handlePrintQRCode(row)}>
+                  Print QR Code
+                </button>
+                <button onClick={() => handleDownloadQRCode(row)}>
+                  Download QR Code
+                </button>
+              </Box>
             </Box>
           </Collapse>
         </TableCell>

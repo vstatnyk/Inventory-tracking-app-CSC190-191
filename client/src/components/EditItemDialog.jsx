@@ -1,11 +1,11 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
   Button,
-  DialogActions,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from "@mui/material";
 import PropTypes from "prop-types";
 
@@ -71,6 +71,19 @@ const EditItemDialog = ({
           value={currentItem?.description}
           onChange={(e) =>
             setCurrentItem({ ...currentItem, description: e.target.value })
+          }
+        />
+        <TextField
+          autoFocus
+          margin="dense"
+          id="unit"
+          label="unit"
+          type="text"
+          fullWidth
+          variant="standard"
+          value={currentItem?.unit}
+          onChange={(e) =>
+            setCurrentItem({ ...currentItem, unit: e.target.value })
           }
         />
       </DialogContent>
