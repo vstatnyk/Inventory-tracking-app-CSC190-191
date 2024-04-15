@@ -258,43 +258,31 @@ export default function EnhancedTable({ items }) {
     return qrCodeSVG.svg();
   };
 
-
-const handleDownloadQRCode = (item) => {
-    try {
-        // Generate QR code string using item and item._id
-        const qrCodeString = generateQRCode(item, item._id);
-
-        // Ensure qrCodeString is a string before proceeding
-        if (typeof qrCodeString !== "string") {
-            throw new Error("QR code string is not a string.");
-        }
-
-        // Generate SVG string from QR code string
-        const svgString = generateQRSVG(qrCodeString);
-
-        // Create temporary DOM element to hold the SVG
-        const div = document.createElement('div');
-        div.innerHTML = svgString;
-
-        // Get the SVG element
-        const qrCodeSvg = div.firstChild;
-
-        // Serialize SVG to XML string
-        const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
-
-        // Create data URL for SVG
-        const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
-
-        // Trigger download
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `qrcode_${item.name}.svg`;
-        link.click();
-    } catch (error) {
-        console.error("Error occurred while downloading QR code:", error);
-    }
-};
-
+  const handleDownloadQRCode = (qrCodeString, filename) => {
+    // Create a new image element
+    const img = new Image();
+  
+    // Set the source of the image to the QR code data
+    img.src = `data:image/svg+xml;base64,${btoa(qrCodeString)}`;
+  
+    // Create a link element
+    const link = document.createElement('a');
+  
+    // Set the href of the link to the data URL of the QR code image
+    link.href = img.src;
+  
+    // Set the download attribute of the link to the filename
+    link.download = filename;
+  
+    // Append the link to the document body
+    document.body.appendChild(link);
+  
+    // Click the link programmatically to trigger the download
+    link.click();
+  
+    // Remove the link from the document body
+    document.body.removeChild(link);
+  };
 
   const handlePrintQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
@@ -581,33 +569,14 @@ const handleDownloadQRCode = (item) => {
         <button onClick={() => handleAddDialogOpen()}>Add Item</button>
         <button onClick={handleExportClick}>Generate Report</button>
     </div>
-    <button onClick={handleDownloadQRCode}>Download selected QR</button>
+    <div style={{ display: "flex", marginTop: "10px" }}>
+        <button onClick={handleDownloadQRCode}>Download selected</button>
+        <button onClick={handlePrintQRCode} style={{ marginLeft: "10px" }}>Print selected</button>
+    </div>
 </div>
 
 
-    {/* Adjust the style here to define a consistent width */}
-    <div style={{ marginBottom: "20px" }}>
-      <TextField
-        fullWidth
-        value={searchTerm}
-        onChange={handleSearchChange}
-        label="Filter By Name"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <FilterListIcon />
-            </InputAdornment>
-          ),
-
-        }}
-      >
-        <div style={{ marginBottom: "10px" }}>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button onClick={() => handleAddDialogOpen()}>Add Item</button>
-            <button onClick={handleExportClick}>Generate Report</button>
-          </div>
-          <button onClick={handleDownloadQRCode}>Download selected QR</button>
-        </div>
+    
 
         {/* Adjust the style here to define a consistent width */}
         <div style={{ marginBottom: "20px" }}>
