@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/grid";
 import "swiper/css/pagination";
-import { Grid, Pagination } from "swiper/modules";
+import "swiper/css/navigation";
+import { Grid, Pagination, Navigation} from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import AddAccountDialog from "../components/AddAccountDialog";
 import edit from "../images/edit-button.svg";
@@ -302,7 +303,8 @@ const handleChangeDepartment = (id) => {
             fill: "row",
         }}
         grabCursor={true}
-        modules={[Grid, Pagination]}
+        modules={[Grid, Pagination, Navigation]}
+        navigation={true}
         pagination={{
           dynamicBullets: true,
           clickable: true,

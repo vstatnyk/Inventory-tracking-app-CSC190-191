@@ -1,13 +1,13 @@
 import {
   Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
-  MenuItem,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  TextField,
 } from "@mui/material";
-import PropTypes from "prop-types";
 import { styled } from "@mui/system";
+import PropTypes from "prop-types";
 
 const StyledTextField = styled(TextField)({
   marginTop: "10px",
@@ -99,6 +99,24 @@ const AddItemDialog = ({
           id="description"
           name="description"
           value={formData.description}
+          onChange={handleInputChange}
+          InputProps={{
+            style: {
+              color: "black",
+            },
+          }}
+        />
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Unit"
+          variant="outlined"
+          color="primary"
+          type="text"
+          fullWidth
+          id="unit"
+          name="unit"
+          value={formData.unit}
           onChange={handleInputChange}
           InputProps={{
             style: {
