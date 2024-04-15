@@ -259,30 +259,40 @@ export default function EnhancedTable({ items }) {
   };
 
 
-const handleDownloadQRCode = (qrCodeString, filename) => {
-  // Create a new image element
-  const img = new Image();
+const handleDownloadQRCode = (item) => {
+    try {
+        // Generate QR code string using item and item._id
+        const qrCodeString = generateQRCode(item, item._id);
 
-  // Set the source of the image to the QR code data
-  img.src = `data:image/svg+xml;base64,${btoa(qrCodeString)}`;
+        // Ensure qrCodeString is a string before proceeding
+        if (typeof qrCodeString !== "string") {
+            throw new Error("QR code string is not a string.");
+        }
 
-  // Create a link element
-  const link = document.createElement('a');
+        // Generate SVG string from QR code string
+        const svgString = generateQRSVG(qrCodeString);
 
-  // Set the href of the link to the data URL of the QR code image
-  link.href = img.src;
+        // Create temporary DOM element to hold the SVG
+        const div = document.createElement('div');
+        div.innerHTML = svgString;
 
-  // Set the download attribute of the link to the filename
-  link.download = filename;
+        // Get the SVG element
+        const qrCodeSvg = div.firstChild;
 
-  // Append the link to the document body
-  document.body.appendChild(link);
+        // Serialize SVG to XML string
+        const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
 
-  // Click the link programmatically to trigger the download
-  link.click();
+        // Create data URL for SVG
+        const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
 
-  // Remove the link from the document body
-  document.body.removeChild(link);
+        // Trigger download
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `qrcode_${item.name}.svg`;
+        link.click();
+    } catch (error) {
+        console.error("Error occurred while downloading QR code:", error);
+    }
 };
 
 
@@ -571,10 +581,7 @@ const handleDownloadQRCode = (qrCodeString, filename) => {
         <button onClick={() => handleAddDialogOpen()}>Add Item</button>
         <button onClick={handleExportClick}>Generate Report</button>
     </div>
-    <div style={{ display: "flex", marginTop: "10px" }}>
-        <button onClick={handleDownloadQRCode}>Download selected</button>
-        <button onClick={handlePrintQRCode} style={{ marginLeft: "10px" }}>Print selected</button>
-    </div>
+    <button onClick={handleDownloadQRCode}>Download selected QR</button>
 </div>
 
 
