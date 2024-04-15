@@ -1,5 +1,16 @@
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { CircularProgress, InputAdornment, FormControl, InputLabel, Select, MenuItem, Checkbox, OutlinedInput, ListItemText, Button } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControl,
+  InputAdornment,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
+} from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
@@ -12,20 +23,19 @@ import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Fuse from "fuse.js";
 import PropTypes from "prop-types";
+import QRCodeSVG from "qrcode-svg";
 import QRCode from "qrcode.react";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { createItem, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
-import AlertPopUp from "./AlertPopUp";
 import AddItemDialog from "./AddItemDialog";
+import AlertPopUp from "./AlertPopUp";
 import EditItemDialog from "./EditItemDialog";
-import TableRowComponent from "./TableRowComponent";
 import EnhancedTableHead from "./EnhancedTableHead";
 import EnhancedTableToolbar from "./EnhancedTableToolbar";
 import SetUrlDialog from "./SetUrlDialog";
-import QRCodeSVG from 'qrcode-svg';
-
+import TableRowComponent from "./TableRowComponent";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -101,50 +111,51 @@ export default function EnhancedTable({ items }) {
       setFilteredItems(inventoryItems);
     }
   };
-  
+
   const handleChangeDepartmentFilter = (event) => {
     const {
       target: { value },
     } = event;
-    
-    const selectedDepartments = typeof value === 'string' ? value.split(',') : value;
-  
-    let filteredItems = inventoryItems;
-  
-    if (selectedDepartments.length > 0) {
 
-      const searchResults = selectedDepartments.map(department => {
+    const selectedDepartments =
+      typeof value === "string" ? value.split(",") : value;
+
+    let filteredItems = inventoryItems;
+
+    if (selectedDepartments.length > 0) {
+      const searchResults = selectedDepartments.map((department) => {
         return fuse.search(department).map(({ item }) => item);
       });
-      
+
       const mergedResults = [].concat(...searchResults);
-      
+
       const uniqueItems = Array.from(new Set(mergedResults));
-  
+
       filteredItems = uniqueItems;
     }
-  
+
     if (searchTerm) {
       const result = fuse.search(searchTerm);
-      filteredItems = result.map(({ item }) => item).filter(item => {
+      filteredItems = result
+        .map(({ item }) => item)
+        .filter((item) => {
+          if (selectedDepartments.length > 0) {
+            return filteredItems.includes(item);
+          }
 
-        if (selectedDepartments.length > 0) {
-          return filteredItems.includes(item);
-        }
-
-        return true;
-      });
+          return true;
+        });
     }
-  
+
     setFilteredItems(filteredItems);
     setDepartmentFilter(selectedDepartments);
   };
 
   useEffect(() => {
-	const cookieValue = localStorage.getItem("rowsPerPage");
-	if (cookieValue) {
-		setRowsPerPage(cookieValue);
-	}
+    const cookieValue = localStorage.getItem("rowsPerPage");
+    if (cookieValue) {
+      setRowsPerPage(cookieValue);
+    }
   }, []);
 
   useEffect(() => {
@@ -230,59 +241,58 @@ export default function EnhancedTable({ items }) {
     return <QRCode value={qrCodeString} />;
   };
 
-  
   const generateQRSVG = (qrCodeString) => {
     // Log the QR code string to check its content and type
     console.log("QR Code String:", qrCodeString);
 
     // Create QRCodeSVG instance
     const qrCodeSVG = new QRCodeSVG({
-        content: qrCodeString, // Make sure qrCodeString is a string
-        container: "svg-viewbox",
-        padding: 0,
-        width: 200,
-        height: 200
+      content: qrCodeString, // Make sure qrCodeString is a string
+      container: "svg-viewbox",
+      padding: 0,
+      width: 200,
+      height: 200,
     });
 
     // Get SVG string representation
     return qrCodeSVG.svg();
-};
+  };
 
-const handleDownloadQRCode = (item) => {
+  const handleDownloadQRCode = (item) => {
     try {
-        // Generate QR code string using item and item._id
-        const qrCodeString = generateQRCode(item, item._id);
+      // Generate QR code string using item and item._id
+      const qrCodeString = generateQRCode(item, item._id);
 
-        // Ensure qrCodeString is a string before proceeding
-        if (typeof qrCodeString !== "string") {
-            throw new Error("QR code string is not a string.");
-        }
+      // Ensure qrCodeString is a string before proceeding
+      if (typeof qrCodeString !== "string") {
+        throw new Error("QR code string is not a string.");
+      }
 
-        // Generate SVG string from QR code string
-        const svgString = generateQRSVG(qrCodeString);
+      // Generate SVG string from QR code string
+      const svgString = generateQRSVG(qrCodeString);
 
-        // Create temporary DOM element to hold the SVG
-        const div = document.createElement('div');
-        div.innerHTML = svgString;
+      // Create temporary DOM element to hold the SVG
+      const div = document.createElement("div");
+      div.innerHTML = svgString;
 
-        // Get the SVG element
-        const qrCodeSvg = div.firstChild;
+      // Get the SVG element
+      const qrCodeSvg = div.firstChild;
 
-        // Serialize SVG to XML string
-        const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
+      // Serialize SVG to XML string
+      const svgXml = new XMLSerializer().serializeToString(qrCodeSvg);
 
-        // Create data URL for SVG
-        const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
+      // Create data URL for SVG
+      const dataUrl = "data:image/svg+xml," + encodeURIComponent(svgXml);
 
-        // Trigger download
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = `qrcode_${item.name}.svg`;
-        link.click();
+      // Trigger download
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `qrcode_${item.name}.svg`;
+      link.click();
     } catch (error) {
-        console.error("Error occurred while downloading QR code:", error);
+      console.error("Error occurred while downloading QR code:", error);
     }
-};
+  };
 
   const handlePrintQRCode = (item) => {
     const qrCodeSvg = generateQRCode(item, item._id);
@@ -334,6 +344,7 @@ const handleDownloadQRCode = (item) => {
       formData.description,
       formData.quantity,
       formData.department,
+      formData.unit,
       localStorage.getItem("token")
     );
     console.log("New item:", newItem._id);
@@ -364,6 +375,7 @@ const handleDownloadQRCode = (item) => {
     setCurrentItem(item);
     setOpenDialog(true);
   };
+
   const handleDialogClose = () => {
     setOpenDialog(false);
   };
@@ -378,6 +390,7 @@ const handleDownloadQRCode = (item) => {
         currentItem.description,
         currentItem.quantity,
         currentItem.department,
+        currentItem.unit,
         localStorage.getItem("token")
       );
 
@@ -407,7 +420,7 @@ const handleDownloadQRCode = (item) => {
       alert("No items selected to export.");
       return;
     }
-  
+
     const selectedItemsData = inventoryItems.filter((item) =>
       selected.includes(item._id)
     );
@@ -427,14 +440,14 @@ const handleDownloadQRCode = (item) => {
             .join("")}</tr>`
       )
       .join("");
-  
+
     const fullHtml = `<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
-  
+
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-  
+
     const downloadButton = `<a href="${url}" download="selected_items.csv" class="download-button">Download CSV</a>`;
-  
+
     const styles = `
       <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -463,12 +476,11 @@ const handleDownloadQRCode = (item) => {
         }
       </style>
     `;
-  
+
     const newWindow = window.open();
     newWindow.document.write(styles + fullHtml + downloadButton);
     newWindow.document.close();
   };
-  
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -519,7 +531,7 @@ const handleDownloadQRCode = (item) => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-	localStorage.setItem("rowsPerPage", event.target.value);
+    localStorage.setItem("rowsPerPage", event.target.value);
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -539,68 +551,82 @@ const handleDownloadQRCode = (item) => {
     [order, orderBy, page, rowsPerPage, filteredItems]
   );
 
-  const departmentOptions = ["Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
+  const departmentOptions = [
+    "Office",
+    "Finance",
+    "Public Outreach",
+    "Lab",
+    "Operations",
+    "Shop",
+    "Fisheries",
+    "IT",
+  ];
 
   return (
-<div style={{ display: "flex" }}>
-  {/* Sidebar */}
-  <div
-    style={{
-      width: "10%",
-      padding: "20px",
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
-    <div style={{ marginBottom: "10px" }}>
-    <div style={{ display: "flex", gap: "10px" }}>
-        <button onClick={() => handleAddDialogOpen()}>Add Item</button>
-        <button onClick={handleExportClick}>Generate Report</button>
-    </div>
-    <button onClick={handleDownloadQRCode}>Download selected QR</button>
-</div>
-
-
-    {/* Adjust the style here to define a consistent width */}
-    <div style={{ marginBottom: "20px" }}>
-      <TextField
-        fullWidth
-        value={searchTerm}
-        onChange={handleSearchChange}
-        label="Filter By Name"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <FilterListIcon />
-            </InputAdornment>
-          ),
+    <div style={{ display: "flex" }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: "10%",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
         }}
-      />
-    </div>
+      >
+        <div style={{ marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={() => handleAddDialogOpen()}>Add Item</button>
+            <button onClick={handleExportClick}>Generate Report</button>
+          </div>
+          <button onClick={handleDownloadQRCode}>Download selected QR</button>
+        </div>
 
-    {/* Adjust the style here to ensure consistency with the TextField */}
-    <div style={{ width: '100%' }}> {/* Make sure this matches the TextField's width */}
-      <FormControl fullWidth sx={{ m: 0 }}>
-        <InputLabel id="item-department-filter-selector-label">Filter by Departments</InputLabel>
-        <Select
-          labelId="item-department-filter-selector-label"
-          id="item-department-filter-selector"
-          multiple
-          value={departmentFilter}
-          onChange={handleChangeDepartmentFilter}
-          input={<OutlinedInput label="Filter by Department" />}
-          renderValue={(selected) => selected.join(', ')}
-        >
-          {departmentOptions.map((department) => (
-          <MenuItem key={department} value={department}>
-            <Checkbox checked={departmentFilter.indexOf(department) > -1} />
-            <ListItemText primary={department} />
-          </MenuItem>
-        ))}
-        </Select>
-      </FormControl>
-    </div>
-  </div>
+        {/* Adjust the style here to define a consistent width */}
+        <div style={{ marginBottom: "20px" }}>
+          <TextField
+            fullWidth
+            value={searchTerm}
+            onChange={handleSearchChange}
+            label="Filter By Name"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FilterListIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+
+        {/* Adjust the style here to ensure consistency with the TextField */}
+        <div style={{ width: "100%" }}>
+          {" "}
+          {/* Make sure this matches the TextField's width */}
+          <FormControl fullWidth sx={{ m: 0 }}>
+            <InputLabel id="item-department-filter-selector-label">
+              Filter by Departments
+            </InputLabel>
+            <Select
+              labelId="item-department-filter-selector-label"
+              id="item-department-filter-selector"
+              multiple
+              value={departmentFilter}
+              onChange={handleChangeDepartmentFilter}
+              input={<OutlinedInput label="Filter by Department" />}
+              renderValue={(selected) => selected.join(", ")}
+            >
+              {departmentOptions.map((department) => (
+                <MenuItem key={department} value={department}>
+                  <Checkbox
+                    checked={departmentFilter.indexOf(department) > -1}
+                  />
+                  <ListItemText primary={department} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+      </div>
 
       <div
         style={{
