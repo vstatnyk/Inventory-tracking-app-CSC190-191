@@ -1,10 +1,10 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  TextField,
   Button,
+  Dialog,
   DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from "@mui/material";
 import PropTypes from "prop-types";
 
@@ -32,8 +32,8 @@ const SetUrlDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleUrlDialogClose}>Cancel</Button>
-        <Button onClick={handleUrlUpdate}>Update URL</Button>
+        <button onClick={handleUrlDialogClose}>Cancel</button>
+        <button onClick={handleUrlUpdate}>Update URL</button>
       </DialogActions>
     </Dialog>
   );
