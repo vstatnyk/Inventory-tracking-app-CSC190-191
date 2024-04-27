@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import PropTypes from "prop-types";
-import edit from "../images/edit-button.svg";
+import edit from "/edit-button.svg";
 
 const TableRowComponent = ({
   row,

@@ -21,10 +21,10 @@ import "swiper/css/pagination";
 import { Grid, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import AddAccountDialog from "../components/AddAccountDialog";
-import edit from "../images/edit-button.svg";
-import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
+import edit from "/edit-button.svg";
+import del from "/trash.svg";
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
