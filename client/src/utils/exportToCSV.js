@@ -1,6 +1,6 @@
 export function exportToCSV(items) {
   const replacer = (key, value) => (value === null ? "" : value);
-  const header = ["name", "quantity", "department"];
+  const header = ["name", "quantity", "unit", "department"];
   let csv = items.map((row) =>
     header
       .map((fieldName) => JSON.stringify(row[fieldName], replacer))

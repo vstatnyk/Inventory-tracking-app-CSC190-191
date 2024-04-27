@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
-import { getTransactions, deleteAllTransactions } from "../utils/api";
+import { deleteAllTransactions, getTransactions, getUser } from "../utils/api";
 
 //styles for MUI components
 const AccordionStyle = {
@@ -37,6 +37,7 @@ const AccordionStyle = {
 export default function RecentTransactions() {
   const [transactions, setTransactions] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -44,10 +45,20 @@ export default function RecentTransactions() {
       setTransactions(data);
     };
 
+    const fetchUser = async () => {
+      const user = await getUser(localStorage.getItem("token"));
+      setUser(user);
+    };
+
     fetchTransactions();
+    fetchUser();
   }, []);
 
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    if (user.accessLevel >= 4) {
+      setOpenModal(true);
+    }
+  };
   const handleCloseModal = () => setOpenModal(false);
 
   const handleDeleteAll = async () => {
@@ -61,13 +72,9 @@ export default function RecentTransactions() {
       <div style={{ color: "black" }}>
         {/* <h1>Recent Transactions</h1> */}
         <Nav active="recent" />
-        <Button
-          variant="contained"
-          onClick={handleOpenModal}
-          style={{ marginBottom: "10px" }}
-        >
+        <button onClick={handleOpenModal} style={{ marginBottom: "10px" }}>
           Delete All
-        </Button>
+        </button>
         <Dialog
           open={openModal}
           onClose={handleCloseModal}
@@ -84,7 +91,9 @@ export default function RecentTransactions() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" onClick={handleCloseModal}>Cancel</Button>
+            <Button variant="contained" onClick={handleCloseModal}>
+              Cancel
+            </Button>
             <Button
               onClick={async () => {
                 await handleDeleteAll();

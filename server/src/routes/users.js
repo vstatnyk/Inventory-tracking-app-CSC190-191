@@ -38,30 +38,25 @@ router.get(
   }
 );
 
-router.get(
-  "/account",
-  authenticateUser,
-  authorizeUser(2),
-  async (req, res) => {
-    try {
-      const idToken = req.headers.authorization.split(" ")[1];
-      const decodedToken = await admin.auth().verifyIdToken(idToken);
-      const account = await Account.findOne(
-          { uid: decodedToken.uid },
-          { _id: 0, uid: 1, department: 1 }
-        );
-      const user = {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-        accessLevel: decodedToken.accessLevel,
-        department: account ? account.department : []
-      }
-      res.json(user);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+router.get("/account", authenticateUser, authorizeUser(0), async (req, res) => {
+  try {
+    const idToken = req.headers.authorization.split(" ")[1];
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const account = await Account.findOne(
+      { uid: decodedToken.uid },
+      { _id: 0, uid: 1, department: 1 }
+    );
+    const user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      accessLevel: decodedToken.accessLevel,
+      department: account ? account.department : [],
+    };
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
 router.post(
   "/register",
@@ -150,8 +145,6 @@ router.put(
     const { email, password, role, department, accountId } = req.body;
 
     //let Department = department.split(",");
-    console.log(accountId);
-    console.log(department);
 
     try {
       await Account.findOneAndUpdate(

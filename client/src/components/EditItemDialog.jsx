@@ -92,8 +92,8 @@ const EditItemDialog = ({
           <CircularProgress size={50} />
         ) : (
           <>
-            <Button onClick={handleDialogClose}>Cancel</Button>
-            <Button onClick={handleDialogUpdate}>Update</Button>
+            <button onClick={handleDialogClose}>Cancel</button>
+            <button onClick={handleDialogUpdate}>Update</button>
           </>
         )}
       </DialogActions>

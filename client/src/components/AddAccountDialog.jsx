@@ -19,6 +19,8 @@ import { styled } from "@mui/system";
 import React, { useState } from "react";
 import { getUsers, registerUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
+import { getUser } from "../utils/api";
+import { useEffect } from "react";
 
 const AddAccountDialog = ({ setAccounts }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -32,9 +34,20 @@ const AddAccountDialog = ({ setAccounts }) => {
     role: "employee",
     department: [],
   });
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser(localStorage.getItem("token"));
+      setUser(user);
+    };
+    fetchUser();
+  });
 
   const handleAddAccount = async () => {
-    setIsFormOpen(true);
+    if (user.accessLevel >= 4) {
+      setIsFormOpen(true);
+    }
   };
 
   const handleFormSubmit = async () => {
@@ -129,7 +142,8 @@ const AddAccountDialog = ({ setAccounts }) => {
                 style: {
                   color: "white",
                 },
-              }}/>
+              }}
+            />
             <StyledTextField
               label="Last Name"
               variant="outlined"
@@ -142,7 +156,8 @@ const AddAccountDialog = ({ setAccounts }) => {
                 style: {
                   color: "white",
                 },
-              }}/>
+              }}
+            />
             <StyledTextField
               label="Email"
               variant="outlined"

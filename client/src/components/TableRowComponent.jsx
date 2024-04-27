@@ -49,7 +49,7 @@ const TableRowComponent = ({
         <TableCell component="th" id={labelId} scope="row" padding="none">
           {row.name}
         </TableCell>
-        <TableCell align="right">{row.quantity}</TableCell>
+        <TableCell align="right">{row.quantity + " " + row.unit}</TableCell>
         <TableCell align="right">{row.department}</TableCell>
         <TableCell align="right">{row.description}</TableCell>
         <TableCell align="right">
@@ -84,12 +84,12 @@ const TableRowComponent = ({
                 <button onClick={() => handleDialogOpen(row)}>
                   <img src={edit} alt="Edit Item" className="image" />
                 </button>
-                <button onClick={() => handlePrintQRCode(row)}>
+                {/* <button onClick={() => handlePrintQRCode(row)}>
                   Print QR Code
                 </button>
                 <button onClick={() => handleDownloadQRCode(row)}>
                   Download QR Code
-                </button>
+                </button> */}
               </Box>
             </Box>
           </Collapse>

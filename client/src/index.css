@@ -22,8 +22,6 @@
 
 /* NAV bar */
 .nav ul {
-  display: flex;
-  justify-content: center;
   list-style-type: none;
   /* padding: 0.5rem; */
   font-size: 1.5rem;
@@ -39,30 +37,13 @@
 }
 
 .nav {
-  z-index: 2; /* set higher z-index value */
-  /* position: fixed; */
+  /* z-index: 4; */
   border: 1px solid #d47927;
   margin-bottom: 1em;
   width: 100%;
   background-color: #d47927;
-}
-
-a,
-.logoutBtn {
   display: flex;
   justify-content: center;
-  align-items: center;
-  width: 150px;
-  height: 70px;
-  line-height: 50px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background-color: #7f7f7f;
-  cursor: pointer;
-  transition: border-color 0.25s;
-  font-weight: 500;
-  color: #ffffff;
-  text-decoration: inherit;
 }
 
 a:hover {
@@ -218,16 +199,14 @@ button:not(.MuiIconButton-root) {
 
 .accountSwiper {
   overflow: auto;
-  
 }
 
 .accountSwiper .swiper-wrapper {
-  display:flexbox;
-  flex-wrap:wrap;
-  justify-content:start;
+  display: flexbox;
+  flex-wrap: wrap;
+  justify-content: start;
   align-items: flex-end;
   align-content: flex-start;
-
 }
 
 .accountSwiper .swiper-pagination {
@@ -255,4 +234,42 @@ button:not(.MuiIconButton-root) {
 button.clearButton {
   color: white;
   top: 7px;
+}
+
+a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 70px;
+  line-height: 50px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: #7f7f7f;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  font-weight: 500;
+  color: #ffffff;
+  text-decoration: inherit;
+}
+
+/* button.logoutBtn:hover {
+  background-color: #1f3842;
+} */
+
+button.logoutBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 70px;
+  line-height: 50px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background-color: #7f7f7f;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  font-weight: 500;
+  color: #ffffff;
+  text-decoration: inherit;
 }

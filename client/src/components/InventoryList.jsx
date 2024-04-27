@@ -27,7 +27,8 @@ import QRCodeSVG from "qrcode-svg";
 import QRCode from "qrcode.react";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { createItem, updateItem } from "../utils/api";
+import { Link } from "react-router-dom";
+import { createItem, getUser, updateItem } from "../utils/api";
 import { exportToCSV } from "../utils/exportToCSV";
 import AddItemDialog from "./AddItemDialog";
 import AlertPopUp from "./AlertPopUp";
@@ -95,6 +96,8 @@ export default function EnhancedTable({ items }) {
     department: "",
     description: "",
   });
+
+  const [useraccount, setUseraccount] = useState(null);
 
   const fuse = new Fuse(inventoryItems, {
     keys: ["name", "department"], // Add the keys you want to include in the search
@@ -167,11 +170,20 @@ export default function EnhancedTable({ items }) {
   }, [showAlert]);
   // const [qrCodeString, setQRCodeString] = React.useState("");
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser(localStorage.getItem("token"));
+      setUseraccount(user);
+    };
+    fetchUser();
+  }, []);
+
   const handleSetUrlClick = (item) => {
-    console.log("Set URL button clicked for item:", item);
-    setCurrentItem(item);
-    setUrlDialogOpen(true);
-    setUrl(item.url || ""); // Set the URL input with the current item's URL
+    if (useraccount.accessLevel >= 3) {
+      setCurrentItem(item);
+      setUrlDialogOpen(true);
+      setUrl(item.url || ""); // Set the URL input with the current item's URL
+    }
   };
 
   const handleUrlDialogClose = () => {
@@ -261,25 +273,25 @@ export default function EnhancedTable({ items }) {
   const handleDownloadQRCode = (qrCodeString, filename) => {
     // Create a new image element
     const img = new Image();
-  
+
     // Set the source of the image to the QR code data
     img.src = `data:image/svg+xml;base64,${btoa(qrCodeString)}`;
-  
+
     // Create a link element
-    const link = document.createElement('a');
-  
+    const link = document.createElement("a");
+
     // Set the href of the link to the data URL of the QR code image
     link.href = img.src;
-  
+
     // Set the download attribute of the link to the filename
     link.download = filename;
-  
+
     // Append the link to the document body
     document.body.appendChild(link);
-  
+
     // Click the link programmatically to trigger the download
     link.click();
-  
+
     // Remove the link from the document body
     document.body.removeChild(link);
   };
@@ -354,7 +366,9 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleAddDialogOpen = () => {
-    setOpenAddDialog(true);
+    if (useraccount.accessLevel >= 3) {
+      setOpenAddDialog(true);
+    }
   };
 
   const handleAddDialogClose = () => {
@@ -362,8 +376,10 @@ export default function EnhancedTable({ items }) {
   };
 
   const handleDialogOpen = (item) => {
-    setCurrentItem(item);
-    setOpenDialog(true);
+    if (useraccount.accessLevel >= 3) {
+      setCurrentItem(item);
+      setOpenDialog(true);
+    }
   };
 
   const handleDialogClose = () => {
@@ -408,68 +424,68 @@ export default function EnhancedTable({ items }) {
   const handleExportClick = () => {
     if (!selected || selected.length === 0) {
       alert("No items selected to export.");
-      return;
+      // return;
+    } else {
+      const selectedItemsData = inventoryItems.filter((item) =>
+        selected.includes(item._id)
+      );
+      const csv = exportToCSV(selectedItemsData);
+      const rows = csv.split("\n");
+      const header = rows[0]
+        .split(",")
+        .map((cell) => `<th>${cell}</th>`)
+        .join("");
+      const body = rows
+        .slice(1)
+        .map(
+          (row) =>
+            `<tr>${row
+              .split(",")
+              .map((cell) => `<td>${cell}</td>`)
+              .join("")}</tr>`
+        )
+        .join("");
+
+      const fullHtml = `<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+
+      const downloadButton = `<a href="${url}" download="selected_items.csv" class="download-button">Download CSV</a>`;
+
+      const styles = `
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    tr:hover { background-color: #ddd; }
+    .download-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #008CBA;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: background-color 0.3s, transform 0.2s;
     }
+    .download-button:hover {
+      background-color: #005f73;
+      transform: scale(1.05);
+    }
+    @media (max-width: 600px) {
+      table { width: 100%; }
+      th, td { padding: 10px; }
+    }
+  </style>
+`;
 
-    const selectedItemsData = inventoryItems.filter((item) =>
-      selected.includes(item._id)
-    );
-    const csv = exportToCSV(selectedItemsData);
-    const rows = csv.split("\n");
-    const header = rows[0]
-      .split(",")
-      .map((cell) => `<th>${cell}</th>`)
-      .join("");
-    const body = rows
-      .slice(1)
-      .map(
-        (row) =>
-          `<tr>${row
-            .split(",")
-            .map((cell) => `<td>${cell}</td>`)
-            .join("")}</tr>`
-      )
-      .join("");
-
-    const fullHtml = `<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const downloadButton = `<a href="${url}" download="selected_items.csv" class="download-button">Download CSV</a>`;
-
-    const styles = `
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        tr:hover { background-color: #ddd; }
-        .download-button {
-          display: inline-block;
-          padding: 10px 20px;
-          background-color: #008CBA;
-          color: white;
-          text-decoration: none;
-          border-radius: 5px;
-          font-size: 16px;
-          transition: background-color 0.3s, transform 0.2s;
-        }
-        .download-button:hover {
-          background-color: #005f73;
-          transform: scale(1.05);
-        }
-        @media (max-width: 600px) {
-          table { width: 100%; }
-          th, td { padding: 10px; }
-        }
-      </style>
-    `;
-
-    const newWindow = window.open();
-    newWindow.document.write(styles + fullHtml + downloadButton);
-    newWindow.document.close();
+      const newWindow = window.open();
+      newWindow.document.write(styles + fullHtml + downloadButton);
+      newWindow.document.close();
+    }
   };
 
   const handleRequestSort = (event, property) => {
@@ -553,30 +569,28 @@ export default function EnhancedTable({ items }) {
   ];
 
   return (
-
-<div style={{ display: "flex" }}>
-  {/* Sidebar */}
-  <div
-    style={{
-      width: "10%",
-      padding: "20px",
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
-    <div style={{ marginBottom: "10px" }}>
-    <div style={{ display: "flex", gap: "10px" }}>
-        <button onClick={() => handleAddDialogOpen()}>Add Item</button>
-        <button onClick={handleExportClick}>Generate Report</button>
-    </div>
-    <div style={{ display: "flex", marginTop: "10px" }}>
-        <button onClick={handleDownloadQRCode}>Download selected</button>
-        <button onClick={handlePrintQRCode} style={{ marginLeft: "10px" }}>Print selected</button>
-    </div>
-</div>
-
-
-    
+    <div style={{ display: "flex" }}>
+      {/* Sidebar */}
+      <div
+        style={{
+          width: "10%",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {}
+        <div style={{ marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={() => handleAddDialogOpen()}>Add Item</button>
+            <button onClick={handleExportClick}>Generate Report</button>
+          </div>
+          <div style={{ display: "flex", marginTop: "10px" }}>
+            <Link style={{ all: "unset" }} to="/qrcode">
+              <button>View All QR codes</button>
+            </Link>
+          </div>
+        </div>
 
         {/* Adjust the style here to define a consistent width */}
         <div style={{ marginBottom: "20px" }}>

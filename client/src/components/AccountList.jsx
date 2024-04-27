@@ -1,21 +1,30 @@
-import { FormControl, InputLabel, Select, MenuItem, Checkbox, OutlinedInput, ListItemText, Button } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  InputLabel,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
+} from "@mui/material";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
 import { useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/grid";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
-import { Grid, Pagination, Navigation} from "swiper/modules";
+import "swiper/css/pagination";
+import { Grid, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import AddAccountDialog from "../components/AddAccountDialog";
 import edit from "../images/edit-button.svg";
 import del from "../images/trash.svg";
 import { deleteUser, registerUser, updateUser } from "../utils/api";
 import AlertPopUp from "./AlertPopUp";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogTitle from "@mui/material/DialogTitle";
 
 export default function AccountList({ accounts_p }) {
   const [editState, setEditState] = useState({});
@@ -28,7 +37,7 @@ export default function AccountList({ accounts_p }) {
   const [departmentFilter, setDepartmentFilter] = useState([]);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
-  const [currentDepartmentList, newDepartmentList] = useState([]);  
+  const [currentDepartmentList, newDepartmentList] = useState([]);
 
   useEffect(() => {
     if (showAlert) {
@@ -80,10 +89,10 @@ export default function AccountList({ accounts_p }) {
   };
 
   const handleInputChange = (property, value, account) => {
-    if (property === 'department') {
-        // No Typing allowed in department box
-        return;
-      }
+    if (property === "department") {
+      // No Typing allowed in department box
+      return;
+    }
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
       [`${property}${account.uid}`]: value,
@@ -133,11 +142,11 @@ export default function AccountList({ accounts_p }) {
   const handleDeleteDialogOpen = (id) => {
     setOpenDeleteDialog(true);
     setAccountToDelete(id);
-  }
+  };
 
   const handleDeleteDialogClose = () => {
     setOpenDeleteDialog(false);
-  }
+  };
 
   const handleDeleteAccount = async (id) => {
     setLoading(true);
@@ -164,8 +173,8 @@ export default function AccountList({ accounts_p }) {
   };
 
   //reflects checked departments in department box
-const handleChangeDepartment = (id) => {
-    console.dir(currentDepartmentList)
+  const handleChangeDepartment = (id) => {
+    console.dir(currentDepartmentList);
     setInputValues((prevInputValues) => ({
       ...prevInputValues,
       [`department${id}`]: currentDepartmentList,
@@ -178,7 +187,7 @@ const handleChangeDepartment = (id) => {
     } = event;
     setDepartmentFilter(
       // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
+      typeof value === "string" ? value.split(",") : value
     );
   };
 
@@ -192,14 +201,13 @@ const handleChangeDepartment = (id) => {
     } = event;
     newDepartmentList(
       // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
+      typeof value === "string" ? value.split(",") : value
     );
-    
   };
-    // clears department checklist
+  // clears department checklist
   const clearNewDepartmentList = () => {
     newDepartmentList([]);
-  }
+  };
 
   const mapAccessLevelToString = (accessLevel) => {
     switch (accessLevel) {
@@ -233,7 +241,17 @@ const handleChangeDepartment = (id) => {
     }
   };
 
-  const departmentOptions = ["none","Office", "Finance", "Public Outreach", "Lab", "Operations", "Shop", "Fisheries", "IT"];
+  const departmentOptions = [
+    "none",
+    "Office",
+    "Finance",
+    "Public Outreach",
+    "Lab",
+    "Operations",
+    "Shop",
+    "Fisheries",
+    "IT",
+  ];
 
   return (
     <>
@@ -242,7 +260,9 @@ const handleChangeDepartment = (id) => {
         style={{ display: "flex", justifyContent: "center", margin: "10px 0" }}
       >
         <FormControl sx={{ m: 1, width: 300 }}>
-          <InputLabel id="account-department-filter-selector-label">Filter by Departments</InputLabel>
+          <InputLabel id="account-department-filter-selector-label">
+            Filter by Departments
+          </InputLabel>
           <Select
             labelId="account-department-filter-selector-label"
             id="account-department-filter-selector"
@@ -250,17 +270,23 @@ const handleChangeDepartment = (id) => {
             value={departmentFilter}
             onChange={handleChangeDepartmentFilter}
             input={<OutlinedInput label="Filter by Department" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.join(", ")}
           >
             {departmentOptions.map((department) => (
-            <MenuItem key={department} value={department}>
-              <Checkbox checked={departmentFilter.indexOf(department) > -1} />
-              <ListItemText primary={department} />
-            </MenuItem>
-          ))}
+              <MenuItem key={department} value={department}>
+                <Checkbox checked={departmentFilter.indexOf(department) > -1} />
+                <ListItemText primary={department} />
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
-        <Button variant="outlined" onClick={handleClearDepartmentFilter} className="clearButton">Clear</Button>
+        <Button
+          variant="outlined"
+          onClick={handleClearDepartmentFilter}
+          className="clearButton"
+        >
+          Clear
+        </Button>
       </div>
       {showAlert && <AlertPopUp message={alert[0]} type={alert[1]} />}
       {loading && (
@@ -271,36 +297,34 @@ const handleChangeDepartment = (id) => {
           <CircularProgress color="inherit" />
         </Backdrop>
       )}
-      <Swiper 
-      // adjust number of slides in view
-      // accoring to window size
+      <Swiper
+        // adjust number of slides in view
+        // accoring to window size
         breakpoints={{
-            640:{
-                slidesPerView: 2,
-                spaceBetween:5,
-            },
-            768: {
-                slidesPerView: 2,
-                spaceBetween:5,  
-            },
-            992: {
-                slidesPerView: 2.5,
-                spaceBetween: 5,
-
-                    
-            },
-            1200: {
-                slidesPerView: 3,
-                spaceBetween:5,   
-            },
-            1700: {
-                slidesPerView: 4,
-                spaceBetween:5,   
-            }
-        }}        
+          640: {
+            slidesPerView: 2,
+            spaceBetween: 5,
+          },
+          768: {
+            slidesPerView: 2,
+            spaceBetween: 5,
+          },
+          992: {
+            slidesPerView: 2.5,
+            spaceBetween: 5,
+          },
+          1200: {
+            slidesPerView: 3,
+            spaceBetween: 5,
+          },
+          1700: {
+            slidesPerView: 4,
+            spaceBetween: 5,
+          },
+        }}
         grid={{
-            rows: 2,
-            fill: "row",
+          rows: 2,
+          fill: "row",
         }}
         grabCursor={true}
         modules={[Grid, Pagination, Navigation]}
@@ -308,9 +332,9 @@ const handleChangeDepartment = (id) => {
         pagination={{
           dynamicBullets: true,
           clickable: true,
-        }}        
+        }}
         className="accountSwiper"
-        >
+      >
         {accounts
           .filter((account) => {
             if (!departmentFilter || departmentFilter.length === 0) {
@@ -318,11 +342,15 @@ const handleChangeDepartment = (id) => {
             }
             // Adjust the logic based on your account.department structure
             // This assumes account.department could be an array or a single value
-            const accountDepartments = Array.isArray(account.department) ? account.department : [account.department];
-            return departmentFilter.some(filter => accountDepartments.includes(filter));
+            const accountDepartments = Array.isArray(account.department)
+              ? account.department
+              : [account.department];
+            return departmentFilter.some((filter) =>
+              accountDepartments.includes(filter)
+            );
           })
           .map((account) => (
-            <SwiperSlide key={account.uid} className='swiperSlide'>
+            <SwiperSlide key={account.uid} className="swiperSlide">
               <div className="account">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
@@ -403,34 +431,43 @@ const handleChangeDepartment = (id) => {
                     {property !== "customClaims" && <br />}
                   </div>
                 ))}
-                {editState[account.uid] &&  (
-                    <div className='swiper-no-swiping' //prevents swiper from listening to mouse for swipe
-                    style={{ display: "flex", justifyContent: "center", margin: "5px" }}
-                    >
-                    <FormControl sx={{ width: 200 }} size='small'>
-                        <InputLabel id="department-change-label">Change Department</InputLabel>
-                        <Select
+                {editState[account.uid] && (
+                  <div
+                    className="swiper-no-swiping" //prevents swiper from listening to mouse for swipe
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      margin: "5px",
+                    }}
+                  >
+                    <FormControl sx={{ width: 200 }} size="small">
+                      <InputLabel id="department-change-label">
+                        Change Department
+                      </InputLabel>
+                      <Select
                         labelId="department-change-label"
                         id="department-change"
                         multiple
                         value={currentDepartmentList}
                         onChange={handleUpdateDepartment}
-                        onClose={(e) =>
-                            handleChangeDepartment(account.uid)
-                        }
+                        onClose={(e) => handleChangeDepartment(account.uid)}
                         input={<OutlinedInput label="Change Department" />}
                         autoWidth
-                        renderValue={(selected) => selected.join(', ')}
-                        >
+                        renderValue={(selected) => selected.join(", ")}
+                      >
                         {departmentOptions.map((department) => (
-                        <MenuItem key={department} value={department}>
-                            <Checkbox checked={currentDepartmentList.indexOf(department) > -1} />
+                          <MenuItem key={department} value={department}>
+                            <Checkbox
+                              checked={
+                                currentDepartmentList.indexOf(department) > -1
+                              }
+                            />
                             <ListItemText primary={department} />
-                        </MenuItem>
+                          </MenuItem>
                         ))}
-                        </Select>
+                      </Select>
                     </FormControl>
-                    </div>
+                  </div>
                 )}
                 <div className="accountRow">
                   Role:{" "}
@@ -443,6 +480,7 @@ const handleChangeDepartment = (id) => {
                         handleChangeRole(account.uid, e.target.value)
                       }
                     >
+                      <option>Select Role</option>
                       <option value="Employee">Employee</option>
                       <option value="Supervisor">Supervisor</option>
                       <option value="Manager">Manager</option>
@@ -489,14 +527,18 @@ const handleChangeDepartment = (id) => {
           ))}
       </Swiper>
       <Dialog open={openDeleteDialog} onClose={handleDeleteDialogClose}>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'center' }}>
+        <DialogTitle sx={{ display: "flex", justifyContent: "center" }}>
           Are you sure you want to delete?
         </DialogTitle>
         <center>
-          <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-          <button onClick={() => handleDeleteAccount(accountToDelete)} color="primary" autoFocus>
-            Confirm
-          </button>
+          <DialogActions sx={{ display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={() => handleDeleteAccount(accountToDelete)}
+              color="primary"
+              autoFocus
+            >
+              Confirm
+            </button>
             <button onClick={handleDeleteDialogClose} color="primary">
               Cancel
             </button>

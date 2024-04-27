@@ -56,9 +56,11 @@ export default function Nav({ active }) {
           )}
         </li>
         <li>
-          <button className="logoutBtn" onClick={handleLogoutClick}>
-            Logout
-          </button>
+          <Link to="/inventory">
+            <button className="logoutBtn" onClick={handleLogoutClick}>
+              Logout
+            </button>
+          </Link>
         </li>
       </ul>
     </nav>
