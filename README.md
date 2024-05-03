@@ -4,7 +4,9 @@
 
 This inventory tracking application replaces manual, paper-based inventory management with a digital solution tailored for the San Mateo County Mosquito and Vector Control District. By utilizing electronic tracking and QR code scanning, the app streamlines inventory management, enhancing operational efficiency and reducing workload.
 
+<div align="center">
 ![Project Logo](README_attrbutes/mosquito.png)
+</div>
 
 ## Table of Contents
 
