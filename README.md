@@ -85,6 +85,11 @@ The Image below shows our Jira timeline for the project as of the end of sprint 
 
 ---
 
+### Project Screenshots
+![image](https://github.com/vstatnyk/Inventory-tracking-app-CSC190-191/assets/59422529/4d738f0b-36c6-454d-a406-121c3d396e32)
+
+---
+
 ### Developer Contact Information
 
 - Cayman Bawden
