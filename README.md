@@ -4,7 +4,7 @@
 
 This inventory tracking application replaces manual, paper-based inventory management with a digital solution tailored for the San Mateo County Mosquito and Vector Control District. By utilizing electronic tracking and QR code scanning, the app streamlines inventory management, enhancing operational efficiency and reducing workload.
 
-![Project Logo](README_attributes/mosquito.png)
+![Project Logo](README_attrbutes/mosquito.png)
 
 ## Table of Contents
 
@@ -190,31 +190,31 @@ The Image below shows our Jira timeline for the project as of the end of sprint 
 
  - Users start here to access the app.
 
-![image](README_attributes/login.png)
+![image](README_attrbutes/login.png)
 
 ### Inventory Screen
 
  - After logging in, users are directed to the inventory page to manage items, generate reports, and view QR codes.
 
-![image](README_attributes/inventory.png)
+![image](README_attrbutes/inventory.png)
 
 ### Recent Transactions Screen
 
  - Authenticated users can view the recent transactions of the inventory on this page.
 
-![image](README_attributes/recent.png)
+![image](README_attrbutes/recent.png)
 
 ### Accounts Screen
 
  - Authenticated users can view registered accounts for the app and manage them on this page.
 
-   ![image](README_attributes/accounts.png)
+   ![image](README_attrbutes/accounts.png)
 
 ### Check In/Out Screen
 
  - Users can check in or check out items in the inventory by scanning their QR code which takes them to this page.
 
-   ![image](README_attributes/checkinout.png)
+   ![image](README_attrbutes/checkinout.png)
 
 ---
 
